@@ -9,6 +9,6 @@ namespace SchoolApp.ViewModel
 {
     public class MainViewModel : BaseViewModel
     {
-
+        
     }
 }

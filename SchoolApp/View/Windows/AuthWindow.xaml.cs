@@ -1,6 +1,8 @@
-﻿using System;
+﻿using SchoolApp.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Resources;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -22,6 +24,19 @@ namespace SchoolApp.View.Windows
         public AuthWindow()
         {
             InitializeComponent();
+        }
+
+        private void remeberCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            if (remeberCheckBox.IsChecked == true)
+            {
+             
+            }
+        }
+
+        private void authButton_Click(object sender, RoutedEventArgs e)
+        {
+            (DataContext as AuthViewModel).Password = pswBox.Password;
         }
     }
 }
