@@ -10,70 +10,82 @@
         xmlns:ViewModel="clr-namespace:SchoolApp.ViewModel" 
         x:Class="SchoolApp.View.Windows.AuthWindow"
         mc:Ignorable="d"
-        Title="Авторизация" Height="450" Width="450" FontFamily="Quicksand">
+    Background="{x:Null}"
+        Title="Авторизация" Height="500" Width="750" FontFamily="Quicksand" AllowsTransparency="True">
+
+    <Window.Style>
+        <Style TargetType="Window" >
+            <Setter Property="AllowsTransparency"
+                    Value="True"/>
+            <Setter Property="WindowStyle"
+                    Value="None"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Window">
+                        <Grid>
+                            <Border Background="White"
+                                    CornerRadius="12"
+                                    Margin="12">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="8"
+                                                      ShadowDepth="0"/>
+                                </Border.Effect>
+                            </Border>
+                            <Border x:Name="Background"
+                                    Margin="12"
+                                    ClipToBounds="True">
+                                <Rectangle Margin="-32"
+                                           Fill="{TemplateBinding Background}">
+                                    <Rectangle.Effect>
+                                        <BlurEffect KernelType="Gaussian"
+                                                    Radius="32"/>
+                                    </Rectangle.Effect>
+                                </Rectangle>
+                                <Border.CacheMode>
+                                    <BitmapCache/>
+                                </Border.CacheMode>
+                            </Border>
+                            <ContentPresenter Margin="12"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Style>
     <Window.DataContext>
         <ViewModel:AuthViewModel/>
     </Window.DataContext>
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="100"/>
-            <RowDefinition/>
-            <RowDefinition Height="100"/>
-        </Grid.RowDefinitions>
-        <Grid >
-            <TextBlock Text="SchoolApp"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"
-                   FontSize="35"/>
-        </Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
 
-        <Grid Grid.Row="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-            </Grid.RowDefinitions>
-            <hc:TextBox Text="{Binding Email}"
-                        hc:InfoElement.Placeholder="E-mail"
-                        hc:InfoElement.Necessary="True"
-                        Margin="15"
-                        TextType="Mail"
-                        Padding="5"
-                        hc:TitleElement.Title="Введите E-mail:"/>
-            <hc:PasswordBox x:Name="pswBox"
-                        Grid.Row="1"
-                        hc:InfoElement.Placeholder="Пароль"
-                        hc:InfoElement.Necessary="True"
-                        Margin="15"
-                        Padding="5"
-                        hc:TitleElement.Title="Введите пароль:"/>
-            <CheckBox Style="{StaticResource CheckBoxBaseStyle}"
-                      x:Name="remeberCheckBox"
-                      Content="Запомнить аккаунт"
-                      Click="remeberCheckBox_Click"
-                      HorizontalAlignment="Right"
-                      VerticalAlignment="Top"
-                      Grid.Row="2"
-                      Margin="0 5 15 0"/>
-        </Grid>
-        <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <Button Content="Закрыть"
-                    Background="{StaticResource PrimaryBrush}"
-                    Command="{Binding Close}"
-                    Width="150"/>
-            <Button Content="Авторизоваться"
-                    x:Name="authButton"
-                    Click="authButton_Click"
-                    Grid.Column="1"
-                    Width="150"
-                    Background="{StaticResource PrimaryBrush}"
-                    Command="{Binding Auth}"/>
-        </Grid>
+        <Border Grid.Column="0"
+                CornerRadius="11, 0, 0, 11"
+                Background="#b382ea"/>
+
+        <Border Grid.Column="1"
+                CornerRadius="0, 11, 11, 0"
+                Background="White">
+            <Grid>
+                
+            </Grid>
+        </Border>
+
+        <Border Grid.ColumnSpan="2"
+                Background="White"
+                Height="350"
+                Width="350"
+                CornerRadius="16"
+                >
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="5"
+                                                      ShadowDepth="0"/>
+            </Border.Effect>
+        </Border>
+        
+
         <Border x:Name="Splash"
                     Visibility="{Binding Visibility}"
                     Grid.Row="0"

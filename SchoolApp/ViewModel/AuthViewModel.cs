@@ -1,6 +1,7 @@
 ﻿using SchoolApp.Command;
 using SchoolApp.Controllers;
 using SchoolApp.Core;
+using SchoolApp.Properties;
 using SchoolApp.View.Windows;
 using System;
 using System.Collections.Generic;
@@ -20,7 +21,19 @@ namespace SchoolApp.ViewModel
         private string _email;
         private string _password;
 
-        private Visibility _visibility = Visibility.Collapsed; 
+        private bool? _check;
+
+        private Visibility _visibility = Visibility.Collapsed;
+
+        public bool? Check
+        {
+            get => _check;
+            set
+            {
+                _check = value;
+                OnPropertyChanged(nameof(Check));
+            }
+        }
 
         public Visibility Visibility
         {
@@ -61,6 +74,46 @@ namespace SchoolApp.ViewModel
             Auth = new DelegateCommand(Authorize);
 
             _controller = new AuthViewModelController();
+
+            //CheckUser();
+        }
+
+        public async void CheckUser()
+        {
+            try
+            {
+                SetSplash(true);
+
+                if (await _controller.GetUserAsync(Settings.Default.Email, Settings.Default.Password))
+                {
+                    OpenMainWindow();
+
+                    return;
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Произошла ошибка подключения", "Проверка подключения", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+            finally
+            {
+                SetSplash(false);
+            }
+        }
+
+        private static void OpenMainWindow()
+        {
+            MainWindow mainWindow = new MainWindow();
+            mainWindow.Show();
+
+            foreach (Window item in Application.Current.Windows)
+            {
+                if (item is AuthWindow)
+                {
+                    item.Close();
+                }
+            }
         }
 
         private void SetSplash(bool visibl)
@@ -76,6 +129,22 @@ namespace SchoolApp.ViewModel
             }
         }
 
+        private void RememberUser()
+        {
+            if (Check == true)
+            {
+                Settings.Default.Email = Email;
+                Settings.Default.Password = Password;
+                Settings.Default.Save();
+            }
+
+            if (Check == false)
+            {
+                Settings.Default.Email = null;
+                Settings.Default.Password = null;
+            }
+        }
+
         private void CloseWindow(object arg)
         {
             Application.Current.Shutdown();
@@ -83,18 +152,18 @@ namespace SchoolApp.ViewModel
 
         private async void Authorize(object obj)
         {
+            if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
+            {
+                MessageBox.Show("Поля не могут быть пустыми", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                return;
+            }
+
             if (!Regex.IsMatch(Email, @"^[\w!#$%&'*+\-/=?\^_`{|}~]+(\.[\w!#$%&'*+\-/=?\^_`{|}~]+)*"
 + "@"
 + @"((([\-\w]+\.)+[a-zA-Z]{2,4})|(([0-9]{1,3}\.){3}[0-9]{1,3}))$"))
             {
                 MessageBox.Show("Неверный формат e-mail", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
-            {
-                MessageBox.Show("Поля не могут быть пустыми", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 return;
             }
@@ -105,18 +174,9 @@ namespace SchoolApp.ViewModel
 
                 if (await _controller.GetUserAsync(Email, Password))
                 {
-                    MainWindow mainWindow = new MainWindow();
-                    mainWindow.Show();
+                    RememberUser();
 
-                    foreach (Window item in Application.Current.Windows)
-                    {
-                        if (item is AuthWindow)
-                        {
-                            item.Close();
-                        }
-                    }
-
-                    return;
+                    OpenMainWindow();
                 }
 
                 MessageBox.Show("Такого пользователя не существует", "Проверка данных", MessageBoxButton.OK, MessageBoxImage.Information);

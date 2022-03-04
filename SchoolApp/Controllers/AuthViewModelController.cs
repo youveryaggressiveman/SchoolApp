@@ -21,11 +21,11 @@ namespace SchoolApp.Controllers
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    var stringTask = await client.GetAsync(_server + "api/Users/auth?email=" + email + "&password=" + password);
+                    var stringTask = await client.GetAsync(_server.Replace("/swagger/", "/") + "api/Users/auth?email=" + email + "&password=" + password);
 
                     if (stringTask.StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
-                        return false;
+                        throw new ArgumentNullException();
                     }
                     
                     var result = await JsonSerializer.DeserializeAsync<User>(await stringTask.Content.ReadAsStreamAsync());
@@ -54,7 +54,7 @@ namespace SchoolApp.Controllers
             }
             catch (Exception)
             {
-                return false;
+                throw new ArgumentNullException();
             }
         }
     }

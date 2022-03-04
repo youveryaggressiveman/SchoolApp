@@ -1,4 +1,5 @@
-﻿using SchoolApp.ViewModel;
+﻿using SchoolApp.Properties;
+using SchoolApp.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,17 +27,11 @@ namespace SchoolApp.View.Windows
             InitializeComponent();
         }
 
-        private void remeberCheckBox_Click(object sender, RoutedEventArgs e)
-        {
-            if (remeberCheckBox.IsChecked == true)
-            {
-             
-            }
-        }
-
         private void authButton_Click(object sender, RoutedEventArgs e)
         {
-            (DataContext as AuthViewModel).Password = pswBox.Password;
+            //(DataContext as AuthViewModel).Password = pswBox.Password;
+
+            //(DataContext as AuthViewModel).Check = remeberCheckBox.IsChecked;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace SchoolApp.Core
 {
     public static class ServerManager
     {
-        private static readonly string _server = "http://localhost:38628/";
+        private static readonly string _server = "http://localhost:38628/swagger/";
 
         public static string GetServer() => _server;
     }
