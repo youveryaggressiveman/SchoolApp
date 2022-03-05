@@ -11,7 +11,7 @@
         x:Class="SchoolApp.View.Windows.AuthWindow"
         mc:Ignorable="d"
     Background="{x:Null}"
-        Title="Авторизация" Height="500" Width="750" FontFamily="Quicksand" AllowsTransparency="True">
+        Title="Авторизация" Height="450" Width="650" FontFamily="Quicksand" AllowsTransparency="True">
 
     <Window.Style>
         <Style TargetType="Window" >
@@ -56,48 +56,171 @@
         <ViewModel:AuthViewModel/>
     </Window.DataContext>
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-
+        <Border Background="Transparent"
+                CornerRadius="11, 11, 0, 0"
+                Grid.ColumnSpan="2"
+                Panel.ZIndex="1"
+                MouseLeftButtonDown="DragWindow"
+                >
+        </Border>
+        <TextBlock Text="🖥️"
+                           Foreground="Black"
+                           FontSize="200"
+                   Grid.RowSpan="2"
+                           RenderTransformOrigin="1, 0.3" Margin="-31,50,31,34"
+                  >
+            <TextBlock.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform />
+                    <SkewTransform />
+                    <RotateTransform Angle="-40.504" />
+                    <TranslateTransform />
+                </TransformGroup>
+            </TextBlock.RenderTransform>
+        </TextBlock>
         <Border Grid.Column="0"
+                Opacity="0.98"
+                Grid.RowSpan="2"
+                Panel.ZIndex="0"
                 CornerRadius="11, 0, 0, 11"
-                Background="#b382ea"/>
+                Background="#b382ea">
+            <Grid>
 
+                <TextBlock Text="SchoolApp"
+                           FontSize="16"
+                           FontStyle="Italic"
+                           FontWeight="Medium"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Top"
+                           Margin="10"/>
+
+            </Grid>
+        </Border>
+        <TextBlock Text="📖"
+                   Grid.RowSpan="2"
+                           Foreground="{StaticResource PrimaryBrush}"
+                           FontSize="200"
+                           RenderTransformOrigin="1, 0.3" Margin="19,239,33,-26" Grid.Column="1"
+                  >
+            <TextBlock.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform />
+                    <SkewTransform />
+                    <RotateTransform Angle="35.916" />
+                    <TranslateTransform />
+                </TransformGroup>
+            </TextBlock.RenderTransform>
+        </TextBlock>
         <Border Grid.Column="1"
+                Opacity="0.93"
+                Grid.RowSpan="2"
                 CornerRadius="0, 11, 11, 0"
                 Background="White">
             <Grid>
-                
+
             </Grid>
         </Border>
 
         <Border Grid.ColumnSpan="2"
                 Background="White"
                 Height="350"
-                Width="350"
+                Grid.RowSpan="2"
+                Width="300"
                 CornerRadius="16"
                 >
+            <Grid Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Авторизация"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           FontSize="35"
+                           Margin="10"
+                           />
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <hc:TextBox TextType="Mail"
+                                Grid.Row="0"
+                                hc:InfoElement.Placeholder="E-mail"
+                                 hc:InfoElement.Necessary="True"
+                        hc:TitleElement.Title="Введите E-mail:"
+                                Text="{Binding Email}"
+                                Margin="10"
+                                FontSize="13"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Center"/>
+                    <hc:PasswordBox x:Name="pswBox"
+                                Grid.Row="1"
+                                hc:InfoElement.Placeholder="Пароль"
+                                 hc:InfoElement.Necessary="True"
+                        hc:TitleElement.Title="Введите пароль:"
+                                Margin="10"
+                                FontSize="13"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Center"/>
+                    <CheckBox x:Name="remeberCheckBox"
+                              Content="Запомнить пользователя"
+                              Grid.Row="2"
+                              HorizontalAlignment="Right"
+                              VerticalAlignment="Top"
+                              Margin="0 20 15 0"/>
+                </Grid>
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Button Content="Выйти"
+                            Style="{StaticResource ButtonPrimary}"
+                            Width="120"
+                            Margin="0 20 0 20"
+                            Command="{Binding Close}"/>
+                    <Button Content="Авторизоваться"
+                            Style="{StaticResource ButtonPrimary}"
+                            Width="120"
+                            Grid.Column="1"
+                            IsDefault="True"
+                            Click="authButton_Click"
+                            Margin="0 20 0 20"
+                            Command="{Binding Auth}"/>
+                </Grid>
+            </Grid>
             <Border.Effect>
                 <DropShadowEffect BlurRadius="5"
-                                                      ShadowDepth="0"/>
+                                  ShadowDepth="0"/>
             </Border.Effect>
         </Border>
-        
+
 
         <Border x:Name="Splash"
                     Visibility="{Binding Visibility}"
                     Grid.Row="0"
                     Grid.RowSpan="3"
-                    Opacity=".35"
+                    Opacity="0.50"
+                    Grid.ColumnSpan="2"
                     Background="Black" />
         <Border Grid.Row="1"
                     Visibility="{Binding Visibility}"
                     Grid.RowSpan="2"
+                Grid.ColumnSpan="2"
                     Background="White"
-                    Height="120"
-                    Width="350">
+                    Height="150"
+                    Width="400">
             <TextBlock VerticalAlignment="Center"
                            HorizontalAlignment="Center">
                 <StackPanel Orientation="Horizontal">
@@ -111,6 +234,12 @@
                            Margin="10,0,0,0" />
                 </StackPanel>
             </TextBlock>
+            <Border.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius"
+                            Value="5"/>
+                </Style>
+            </Border.Resources>
         </Border>
     </Grid>
 </Window>

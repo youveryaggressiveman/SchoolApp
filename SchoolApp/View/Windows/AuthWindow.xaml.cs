@@ -29,9 +29,22 @@ namespace SchoolApp.View.Windows
 
         private void authButton_Click(object sender, RoutedEventArgs e)
         {
-            //(DataContext as AuthViewModel).Password = pswBox.Password;
+            (DataContext as AuthViewModel).Password = pswBox.Password;
 
-            //(DataContext as AuthViewModel).Check = remeberCheckBox.IsChecked;
+            (DataContext as AuthViewModel).Check = remeberCheckBox.IsChecked;
+        }
+
+        private void DragWindow(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                DragMove();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                throw;
+            }
         }
     }
 }
