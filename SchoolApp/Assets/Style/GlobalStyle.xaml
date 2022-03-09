@@ -2,5 +2,42 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                             xmlns:hc="https://handyorg.github.io/handycontrol">
     
-  
+  <Style TargetType="Window"
+         x:Key="castomWindow">
+      <Setter Property="AllowsTransparency"
+              Value="True" />
+      <Setter Property="WindowStyle"
+              Value="None" />
+      <Setter Property="Template">
+          <Setter.Value>
+              <ControlTemplate TargetType="Window">
+                  <Grid>
+                      <Border Background="White"
+                              CornerRadius="12"
+                              Margin="12">
+                          <Border.Effect>
+                              <DropShadowEffect BlurRadius="8"
+                                                ShadowDepth="0" />
+                          </Border.Effect>
+                      </Border>
+                      <Border x:Name="Background"
+                              Margin="12"
+                              ClipToBounds="True">
+                          <Rectangle Margin="-32"
+                                     Fill="{TemplateBinding Background}">
+                              <Rectangle.Effect>
+                                  <BlurEffect KernelType="Gaussian"
+                                              Radius="32" />
+                              </Rectangle.Effect>
+                          </Rectangle>
+                          <Border.CacheMode>
+                              <BitmapCache />
+                          </Border.CacheMode>
+                      </Border>
+                      <ContentPresenter Margin="12" />
+                  </Grid>
+              </ControlTemplate>
+          </Setter.Value>
+      </Setter>
+    </Style>
 </ResourceDictionary>

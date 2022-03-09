@@ -5,6 +5,7 @@ using SchoolApp.Properties;
 using SchoolApp.View.Windows;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -18,8 +19,8 @@ namespace SchoolApp.ViewModel
     {
         private readonly AuthViewModelController _controller;
 
-        private string _email;
-        private string _password;
+        private string _email = "andrey.banplay2017@yandex.ru";
+        private string _password = "123";
 
         private bool? _check;
 
@@ -75,30 +76,34 @@ namespace SchoolApp.ViewModel
 
             _controller = new AuthViewModelController();
 
-            //CheckUser();
+            CheckUser();
         }
 
         public async void CheckUser()
         {
-            try
+            if (!(string.IsNullOrEmpty(Settings.Default.Email) && string.IsNullOrEmpty(Settings.Default.Password)))
             {
-                SetSplash(true);
-
-                if (await _controller.GetUserAsync(Settings.Default.Email, Settings.Default.Password))
+                try
                 {
-                    OpenMainWindow();
+                    SetSplash(true);
 
+                    if (await _controller.GetUserAsync(Settings.Default.Email, Settings.Default.Password))
+                    {
+                        OpenMainWindow();
+
+                        return;
+                    }
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Произошла ошибка подключения", "Проверка подключения", MessageBoxButton.OK, MessageBoxImage.Information);
+                    Properties.Settings.Default.Reset();
                     return;
                 }
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Произошла ошибка подключения", "Проверка подключения", MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
-            finally
-            {
-                SetSplash(false);
+                finally
+                {
+                    SetSplash(false);
+                }
             }
         }
 
@@ -177,6 +182,8 @@ namespace SchoolApp.ViewModel
                     RememberUser();
 
                     OpenMainWindow();
+
+                    return;
                 }
 
                 MessageBox.Show("Такого пользователя не существует", "Проверка данных", MessageBoxButton.OK, MessageBoxImage.Information);

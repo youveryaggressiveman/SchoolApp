@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using SchoolApp.ViewModel;
 
 namespace SchoolApp
 {
@@ -20,9 +21,26 @@ namespace SchoolApp
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly MainViewModel _mainViewModel;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            DataContext = _mainViewModel = new MainViewModel(mainFrame);
+        }
+
+        private void DragWindow(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                DragMove();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                throw;
+            }
         }
     }
 }

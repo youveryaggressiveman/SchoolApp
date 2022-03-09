@@ -21,8 +21,9 @@ namespace SchoolApp.Model
         public int PassportId { get; set; }
         public int RoleId { get; set; }
 
-        public virtual Address Address { get; set; }
-        public virtual Passport Passport { get; set; }
-        public virtual Role Role { get; set; }
+        public Address Address { get; set; }
+        public Passport Passport { get; set; }
+        public Role Role { get; set; }
+        
     }
 }
