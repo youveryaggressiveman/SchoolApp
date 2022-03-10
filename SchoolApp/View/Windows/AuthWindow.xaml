@@ -13,6 +13,7 @@
         Title="Авторизация"
         Height="450"
         Width="650"
+        Foreground="#333333"
         Style="{StaticResource castomWindow}"
         FontFamily="Quicksand"
         AllowsTransparency="True">

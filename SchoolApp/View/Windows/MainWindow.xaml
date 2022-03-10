@@ -9,16 +9,17 @@
         WindowStartupLocation="CenterScreen"
         Title="Главное окно" Height="650" Width="1000"
         FontFamily="Quicksand"
+        Foreground="#333333"
         Background="{x:Null}"
         Style="{StaticResource castomWindow}">
     <Grid Background="Transparent"
           >
         <Grid.RowDefinitions>
-            <RowDefinition Height="100"/>
+            <RowDefinition Height="150"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="100"/>
+            <ColumnDefinition Width="150"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid Grid.Row="0"
@@ -48,6 +49,35 @@
                           Duration="00:00:05" 
                           Stretch="Uniform" StrokeThickness="1"
                           Stroke="Black"></hc:AnimationPath>
+        </Grid>
+        <Grid Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="1"
+                        Margin="0 0 20 0"
+                        Orientation="Vertical"
+                        HorizontalAlignment="Left"
+                        >
+                <TextBlock Text="{Binding User.FIO}"
+                           VerticalAlignment="Bottom"
+                           FontSize="18"
+                           />
+                <TextBlock Text="{Binding User.Role.Name}"
+                           VerticalAlignment="Top"
+                           FontSize="15"/>
+            </StackPanel>
+            <Button Grid.Column="2"
+                    Content="Выйти"
+                    FontSize="15"
+                    Command="{Binding ExitAccount}"
+                    ToolTip="Выйти из аккаунта"
+                    Margin="10 20 20 10"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Top"
+                    Style="{StaticResource ButtonDashedWarning.Small}"/>
         </Grid>
         <Frame Background="White"
                Grid.Row="1"
