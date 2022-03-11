@@ -26,11 +26,11 @@ namespace SchoolApp.Controllers
             throw new ArgumentNullException();
         }
 
-        public async Task<bool> PostListSomething<C>(IEnumerable<C> obj, string[] listName, string[] listArgument) where C : class
+        public async Task<bool> PostListSomething<C>(C obj, string[] listName, string[] listArgument) where C : class
         {
             if (await GetAccessibleServer())
             {
-                var jsonObject = JsonSerializer.Serialize<IEnumerable<C>>(obj);
+                var jsonObject = JsonSerializer.Serialize<C>(obj);
                 var url = _server.Replace("/swagger/", "/api/");
 
                 using (HttpClient client = new HttpClient())

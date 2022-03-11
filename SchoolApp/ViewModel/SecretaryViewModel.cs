@@ -23,17 +23,28 @@ namespace SchoolApp.ViewModel
 
         private ObservableCollection<Group> _groupList;
         private ObservableCollection<Employee> _curatorList;
-        private ObservableCollection<User> _studentList;
+        private ObservableCollection<Student> _studentList;
         private ObservableCollection<Country> _countryList;
         private ObservableCollection<City> _cityListBySelectedCountry;
 
         private Country _selectedCountry;
         private City _selectedCity;
-        private Address _addressByNewUser;
-        private Passport _passportByNewUser;
+        private Address _addressByNewStudent;
+        private Passport _passportByNewStudent;
         private Group _selectedGroup;
         private Employee _selectedCurator;
-        private User _newUser;
+        private Student _selectedStudent;
+        private Student _newStudent;
+
+        public Student SelectedStudent
+        {
+            get => _selectedStudent;
+            set
+            {
+                _selectedStudent = value;
+                OnPropertyChanged(nameof(SelectedStudent));
+            }
+        }
 
         public Country SelectedCountry
         {
@@ -57,13 +68,13 @@ namespace SchoolApp.ViewModel
             }
         }
 
-        public Address AddressByNewUser
+        public Address AddressByNewStudent
         {
-            get => _addressByNewUser;
+            get => _addressByNewStudent;
             set
             {
-                _addressByNewUser = value;
-                OnPropertyChanged(nameof(AddressByNewUser));
+                _addressByNewStudent = value;
+                OnPropertyChanged(nameof(AddressByNewStudent));
             }
         }
 
@@ -87,13 +98,13 @@ namespace SchoolApp.ViewModel
             }
         }
 
-        public Passport PassportByNewUser
+        public Passport PassportByNewStudent
         {
-            get => _passportByNewUser;
+            get => _passportByNewStudent;
             set
             {
-                _passportByNewUser = value;
-                OnPropertyChanged(nameof(PassportByNewUser));
+                _passportByNewStudent = value;
+                OnPropertyChanged(nameof(PassportByNewStudent));
             }
         }
 
@@ -117,7 +128,7 @@ namespace SchoolApp.ViewModel
             }
         }
 
-        public ObservableCollection<User> StudentList
+        public ObservableCollection<Student> StudentList
         {
             get => _studentList;
             set
@@ -147,18 +158,20 @@ namespace SchoolApp.ViewModel
             }
         }
 
-        public User NewUser
+        public Student NewStudent
         {
-            get => _newUser;
+            get => _newStudent;
             set
             {
-                _newUser = value;
-                OnPropertyChanged(nameof(NewUser));
+                _newStudent = value;
+                OnPropertyChanged(nameof(NewStudent));
             }
         }
 
         public ICommand AddNewGroupInDatabase { get; private set; }
         public ICommand AddNewUserInGroup { get; private set; }
+        public ICommand DeleteNewStudent { get; private set; }
+        public ICommand RefactorNewStudent { get; private set; }
 
         public SecretaryViewModel()
         {
@@ -171,13 +184,66 @@ namespace SchoolApp.ViewModel
             GroupList = new ObservableCollection<Group>();
             CountryList = new ObservableCollection<Country>();
             CuratorList = new ObservableCollection<Employee>();
-            StudentList = new ObservableCollection<User>();
+            StudentList = new ObservableCollection<Student>();
             CityListBySelectedCountry = new ObservableCollection<City>();
 
+            RefactorNewStudent = new DelegateCommand(Refactor);
+            DeleteNewStudent = new DelegateCommand(Delete);
             AddNewGroupInDatabase = new DelegateCommand(AddNewGroup);
             AddNewUserInGroup = new DelegateCommand(AddNewUser);
 
             LoadAllInfo();
+        }
+
+        private void Refactor(object arg)
+        {
+            if (SelectedStudent == null)
+            {
+                return;
+            }
+
+            NewStudent.User.FirstName = SelectedStudent.User.FirstName;
+            NewStudent.User.SecondName = SelectedStudent.User.SecondName;
+            NewStudent.User.LastName = SelectedStudent.User.LastName;
+            NewStudent.User.Password = SelectedStudent.User.Password;
+            NewStudent.User.Email = SelectedStudent.User.Email;
+
+            PassportByNewStudent.PassportNumber = SelectedStudent.User.Passport.PassportNumber;
+            PassportByNewStudent.PassportSerial = SelectedStudent.User.Passport.PassportSerial;
+            PassportByNewStudent.DateBith = SelectedStudent.User.Passport.DateBith;
+
+            foreach (var item in CountryList)
+            {
+                if (item == SelectedStudent.User.Address.City.Country)
+                {
+                    SelectedCountry = item;
+                }
+            }
+
+            foreach (var item in CityListBySelectedCountry)
+            {
+                if (item == SelectedStudent.User.Address.City)
+                {
+                    SelectedCity = item;
+                }
+            }
+        }
+
+        private void Delete(object arg)
+        {
+            if (SelectedStudent == null)
+            {
+                return;
+            }
+
+            foreach (var item in StudentList)
+            {
+                if (item == SelectedStudent)
+                {
+                    StudentList.Remove(item);
+                    return;
+                }
+            }
         }
 
         private async void AddNewGroup(object obj)
@@ -189,78 +255,96 @@ namespace SchoolApp.ViewModel
                 return;
             }
 
-            (null as MainViewModel).SetSplash(true);
+            SetSplash(true);
 
             try
             {
-                if (await _postNewStudentGroupController.PostListSomething(StudentList, new string[]{}, new string[]{}))
-                {
-                    MessageBox.Show("Данные о новой группе успешно занеслись в БД", "Занесение данных", MessageBoxButton.OK,
-                        MessageBoxImage.Information);
-
-                    return;
-                }
-
-                MessageBox.Show("Данные не смогли занестись. Попробуйте позже", "Занесение данных", MessageBoxButton.OK,
+                foreach (var item in StudentList)
+                {    
+                    if (await _postNewStudentGroupController.PostListSomething(item, new string[] { }, new string[] { }))
+                    {
+                        
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Данные o {item.User.FIO} не смогли занестись. Попробуйте позже", "Занесение данных", MessageBoxButton.OK,
                     MessageBoxImage.Information);
+                    }
+                  
+                }
+               
             }
             catch (Exception e)
             {
                 MessageBox.Show("Произошла ошибка подключения", "Получение данных", MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                    MessageBoxImage.Error);
 
                 return;
             }
             finally
             {
-                (null as MainViewModel).SetSplash(false);
+                SetSplash(false);
             }
         }
 
         private void AddNewUser(object obj)
         {
-            if (string.IsNullOrEmpty(NewUser.FirstName) || string.IsNullOrEmpty(NewUser.SecondName) ||
-                string.IsNullOrEmpty(NewUser.LastName) || string.IsNullOrEmpty(NewUser.Password) ||
-                string.IsNullOrEmpty(NewUser.Email) || string.IsNullOrEmpty(PassportByNewUser.PassportNumber) ||
-                string.IsNullOrEmpty(PassportByNewUser.PassportSerial) || PassportByNewUser.DateBith == DateTime.Now ||
+            if (string.IsNullOrEmpty(NewStudent.User.FirstName) || string.IsNullOrEmpty(NewStudent.User.SecondName) ||
+                string.IsNullOrEmpty(NewStudent.User.LastName) || string.IsNullOrEmpty(NewStudent.User.Password) ||
+                string.IsNullOrEmpty(NewStudent.User.Email) || string.IsNullOrEmpty(PassportByNewStudent.PassportNumber) ||
+                string.IsNullOrEmpty(PassportByNewStudent.PassportSerial) || PassportByNewStudent.DateBith == DateTime.Now ||
                 SelectedGroup == null || SelectedCountry == null || SelectedCity == null ||
-                string.IsNullOrEmpty(AddressByNewUser.AddressName) ||
-                string.IsNullOrEmpty(AddressByNewUser.AddressNumber))
+                string.IsNullOrEmpty(AddressByNewStudent.AddressName) ||
+                string.IsNullOrEmpty(AddressByNewStudent.AddressNumber))
             {
                 MessageBox.Show("Заполните все поля", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 return;
             }
 
-            User newUser = new User()
+            Student newStudent = new Student()
             {
-                FirstName = NewUser.FirstName,
-                SecondName = NewUser.SecondName,
-                LastName = NewUser.LastName,
-                Password = NewUser.Password,
-                Email = NewUser.Email,
-                Passport = PassportByNewUser,
-                Address = new Address()
+                User = new User()
                 {
-                    AddressName = AddressByNewUser.AddressName,
-                    AddressNumber = AddressByNewUser.AddressNumber,
-                    City = new City()
+                    FirstName = NewStudent.User.FirstName,
+                    SecondName = NewStudent.User.SecondName,
+                    LastName = NewStudent.User.LastName,
+                    Password = NewStudent.User.Password,
+                    Email = NewStudent.User.Email,
+                    Passport = PassportByNewStudent,
+                    Address = new Address()
                     {
-                        Name = SelectedCity.Name,
-                        Country = new Country()
+                        AddressName = AddressByNewStudent.AddressName,
+                        AddressNumber = AddressByNewStudent.AddressNumber,
+                        City = new City()
                         {
-                            Name = SelectedCountry.Name
+                            Name = SelectedCity.Name,
+                            Country = new Country()
+                            {
+                                Name = SelectedCountry.Name
+                            }
                         }
                     }
                 }
             };
 
-            StudentList.Add(newUser);
+            StudentList.Add(newStudent);
+        }
+
+        private void SetSplash(bool isEnabled)
+        {
+            foreach (Window item in Application.Current.Windows)
+            {
+                if (item is MainWindow)
+                {
+                    (item.DataContext as MainViewModel).SetSplash(isEnabled);
+                }
+            }
         }
 
         private async void LoadAllInfo()
         {
-            (null as MainViewModel).SetSplash(true);
+            SetSplash(true);
 
             IEnumerable<Group> listGroup;
             IEnumerable<Country> listCountry;
@@ -268,32 +352,37 @@ namespace SchoolApp.ViewModel
 
             try
             {
-                listCurator = await _getCuratorListController.GetList(new string[] {"Employees"});
-                listCountry = await _getCountryListController.GetList(new string[] {"Countries"});
-                listGroup = await _getGroupListController.GetList(new string[] {"Groups"});
+                listCurator = await _getCuratorListController.GetList(new string[] { "Employees" });
+                listCountry = await _getCountryListController.GetList(new string[] { "Countries" });
+                listGroup = await _getGroupListController.GetList(new string[] { "Groups" });
+
+                listCurator.ToList().ForEach(CuratorList.Add);
+                listCountry.ToList().ForEach(CountryList.Add);
+                listGroup.ToList().ForEach(GroupList.Add);
+
             }
             catch (Exception e)
             {
                 MessageBox.Show("Произошла ошибка подключения", "Получение данных", MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                    MessageBoxImage.Error);
 
                 return;
             }
             finally
             {
-                (null as MainViewModel).SetSplash(false);
+                SetSplash(false);
             }
         }
 
         private async void LoadCityByCountry()
         {
-            (null as MainViewModel).SetSplash(true);
+            SetSplash(true);
 
             IEnumerable<City> listCity;
 
             try
             {
-                listCity = await _getCityListByCountryController.GetListBySomething(new string[]{}, new string[]{});
+                listCity = await _getCityListByCountryController.GetListBySomething(new string[] { }, new string[] { });
 
                 foreach (var item in listCity)
                 {
@@ -303,13 +392,13 @@ namespace SchoolApp.ViewModel
             catch (Exception e)
             {
                 MessageBox.Show("Произошла ошибка подключения", "Получение данных", MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                    MessageBoxImage.Error);
 
                 return;
             }
             finally
             {
-                (null as MainViewModel).SetSplash(false);
+                SetSplash(false);
             }
         }
     }
