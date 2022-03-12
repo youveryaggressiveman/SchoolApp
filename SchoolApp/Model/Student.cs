@@ -8,8 +8,9 @@ namespace SchoolApp.Model
 {
     public class Student
     {
-        public int GroupId { get; set; }
-        public int UserId { get; set; }
+        public Guid ID { get; set; }
+        public int GroupID { get; set; }
+        public Guid UserID { get; set; }
 
         public virtual Group Group { get; set; }
         public virtual User User { get; set; }

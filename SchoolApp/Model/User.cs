@@ -8,18 +8,17 @@ namespace SchoolApp.Model
 {
     public class User
     {
-        public int Id { get; set; }
+        public Guid ID { get; set; }
         public string FirstName { get; set; }
         public string SecondName { get; set; }
         public string? LastName { get; set; }
-        public string Uuid { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
         public string FIO => SecondName + " " + FirstName[0] + "." + (LastName != null ? LastName[0] + "." : "");
 
-        public int AddressId { get; set; }
-        public int PassportId { get; set; }
-        public int RoleId { get; set; }
+        public int AddressID { get; set; }
+        public int PassportID { get; set; }
+        public int RoleID { get; set; }
 
         public Address Address { get; set; }
         public Passport Passport { get; set; }

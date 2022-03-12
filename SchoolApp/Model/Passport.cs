@@ -2,7 +2,7 @@
 {
     public class Passport
     {
-        public int Id { get; set; }
+        public int ID { get; set; }
         public string PassportSerial { get; set; }
         public string PassportNumber { get; set; }
         public System.DateTime DateBith { get; set; }

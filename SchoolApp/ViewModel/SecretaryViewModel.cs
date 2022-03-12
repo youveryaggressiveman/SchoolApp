@@ -15,6 +15,7 @@ namespace SchoolApp.ViewModel
 {
     public class SecretaryViewModel : BaseViewModel
     {
+        private readonly UniversalController<Group> _putGroupController;
         private readonly UniversalController<object> _postNewStudentGroupController;
         private readonly UniversalController<City> _getCityListByCountryController;
         private readonly UniversalController<Employee> _getCuratorListController;
@@ -175,6 +176,7 @@ namespace SchoolApp.ViewModel
 
         public SecretaryViewModel()
         {
+            _putGroupController = new UniversalController<Group>();
             _postNewStudentGroupController = new UniversalController<object>();
             _getCityListByCountryController = new UniversalController<City>();
             _getCuratorListController = new UniversalController<Employee>();
@@ -211,22 +213,6 @@ namespace SchoolApp.ViewModel
             PassportByNewStudent.PassportNumber = SelectedStudent.User.Passport.PassportNumber;
             PassportByNewStudent.PassportSerial = SelectedStudent.User.Passport.PassportSerial;
             PassportByNewStudent.DateBith = SelectedStudent.User.Passport.DateBith;
-
-            foreach (var item in CountryList)
-            {
-                if (item == SelectedStudent.User.Address.City.Country)
-                {
-                    SelectedCountry = item;
-                }
-            }
-
-            foreach (var item in CityListBySelectedCountry)
-            {
-                if (item == SelectedStudent.User.Address.City)
-                {
-                    SelectedCity = item;
-                }
-            }
         }
 
         private void Delete(object arg)
@@ -257,20 +243,47 @@ namespace SchoolApp.ViewModel
 
             SetSplash(true);
 
+            var newGroup = new Group()
+            {
+                Name = SelectedGroup.Name,
+                Curator = SelectedCurator,
+                CuratorID = SelectedCurator.ID,
+            };
+
+            try
+            {
+                await _putGroupController.PutAsync(newGroup, new string[] { "Group", "Put", "group" }, new string[] { });
+            }
+            catch (Exception)
+            {
+                SetSplash(false);
+
+                MessageBox.Show("Произошла ошибка подключения", "Получение данных", MessageBoxButton.OK,
+                   MessageBoxImage.Error);
+
+                throw;
+            }
+
             try
             {
                 foreach (var item in StudentList)
-                {    
-                    if (await _postNewStudentGroupController.PostListSomething(item, new string[] { }, new string[] { }))
+                {
+                    item.Group = newGroup;
+
+                    try
                     {
-                        
+                        await _postNewStudentGroupController.PostListSomething(item, new string[] { "Student", "Create" }, new string[] { });
                     }
-                    else
+                    catch (Exception)
                     {
                         MessageBox.Show($"Данные o {item.User.FIO} не смогли занестись. Попробуйте позже", "Занесение данных", MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                   MessageBoxImage.Information);
+                        return;
                     }
-                  
+                    finally
+                    {
+                        SetSplash(false);
+                    }              
                 }
                
             }
@@ -316,12 +329,18 @@ namespace SchoolApp.ViewModel
                     {
                         AddressName = AddressByNewStudent.AddressName,
                         AddressNumber = AddressByNewStudent.AddressNumber,
-                        City = new City()
+                        City = new List<City>()
                         {
-                            Name = SelectedCity.Name,
-                            Country = new Country()
+                            new City()
                             {
-                                Name = SelectedCountry.Name
+                                Name = SelectedCity.Name,
+                                Countries = new List<Country>()
+                                {
+                                    new Country()
+                                    {
+                                        Name = SelectedCountry.Name
+                                    }
+                                }
                             }
                         }
                     }
@@ -353,8 +372,8 @@ namespace SchoolApp.ViewModel
             try
             {
                 listCurator = await _getCuratorListController.GetList(new string[] { "Employees" });
-                listCountry = await _getCountryListController.GetList(new string[] { "Countries" });
-                listGroup = await _getGroupListController.GetList(new string[] { "Groups" });
+                listCountry = await _getCountryListController.GetList(new string[] { "Country", "GetAll" });
+                listGroup = await _getGroupListController.GetList(new string[] { "Group", "GetAll" });
 
                 listCurator.ToList().ForEach(CuratorList.Add);
                 listCountry.ToList().ForEach(CountryList.Add);
@@ -382,7 +401,7 @@ namespace SchoolApp.ViewModel
 
             try
             {
-                listCity = await _getCityListByCountryController.GetListBySomething(new string[] { }, new string[] { });
+                listCity = await _getCityListByCountryController.GetListBySomething(new string[] {"City","GetCityByCountry","countryID" }, new string[] { SelectedCountry.ID.ToString()});
 
                 foreach (var item in listCity)
                 {

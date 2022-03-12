@@ -8,5 +8,6 @@ namespace SchoolApp.Model
 {
     public class Employee
     {
+        public Guid ID { get; set; }
     }
 }

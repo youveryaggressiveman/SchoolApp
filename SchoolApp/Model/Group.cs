@@ -8,5 +8,10 @@ namespace SchoolApp.Model
 {
     public class Group
     {
+        public int ID { get; set; }
+        public string Name { get; set; }
+        public Guid CuratorID { get; set; }
+
+        public Employee Curator { get; set; }
     }
 }

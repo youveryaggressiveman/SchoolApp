@@ -20,18 +20,21 @@ namespace SchoolApp.Controllers
         {
             if (await GetAccessibleServer())
             {
-
+                using (HttpClient client = new HttpClient())
+                {
+                    var stringTask = await client.GetAsync(_server.Replace("/swagger/", "/api/") + listName[0] + "/" + listName[1] + "/" + listName[2] + "?" + listName[2] + "=" + int.Parse(listArgument[0]));
+                }
             }
 
             throw new ArgumentNullException();
         }
 
-        public async Task<bool> PostListSomething<C>(C obj, string[] listName, string[] listArgument) where C : class
+        public async Task<Guid> PostListSomething<C>(C obj, string[] listName, string[] listArgument) where C : class
         {
             if (await GetAccessibleServer())
             {
                 var jsonObject = JsonSerializer.Serialize<C>(obj);
-                var url = _server.Replace("/swagger/", "/api/");
+                var url = _server.Replace("/swagger/", "/api/") + listName[0] + "/" + listName[1] + "/";
 
                 using (HttpClient client = new HttpClient())
                 {
@@ -46,9 +49,28 @@ namespace SchoolApp.Controllers
                     }
 
                     var result =
-                        await JsonSerializer.DeserializeAsync<bool>(await stringTask.Content.ReadAsStreamAsync());
+                        await JsonSerializer.DeserializeAsync<Guid>(await stringTask.Content.ReadAsStreamAsync());
 
                     return result;
+                }
+            }
+
+            throw new ArgumentNullException();
+        }
+
+        public async Task PutAsync<C>(C obj, string[] listName, string[] listArgument)
+        {
+            if (await GetAccessibleServer())
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    var jsonObject = JsonSerializer.Serialize<C>(obj);
+                    var url = _server.Replace("/swagger/", "/api/") + listName[0] + "/" + listName[1] + "/" + listName[2] + "?" + listName[2] + "=" + listArgument[0];
+
+                    var content = new StringContent(jsonObject, Encoding.UTF8, "application/json");
+                    content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+                    await client.PostAsync(url, content);
                 }
             }
 
@@ -61,7 +83,7 @@ namespace SchoolApp.Controllers
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    var stringTask = await client.GetAsync(_server.Replace("/swagger/", "/api/") + listName[0] + "/");
+                    var stringTask = await client.GetAsync(_server.Replace("/swagger/", "/api/") + listName[0] + "/" + listName[1]);
 
                     if (stringTask.StatusCode != HttpStatusCode.OK)
                     {
