@@ -23,6 +23,15 @@ namespace SchoolApp.Controllers
                 using (HttpClient client = new HttpClient())
                 {
                     var stringTask = await client.GetAsync(_server.Replace("/swagger/", "/api/") + listName[0] + "/" + listName[1] + "/" + listName[2] + "?" + listName[2] + "=" + int.Parse(listArgument[0]));
+
+                    if (stringTask.StatusCode != HttpStatusCode.OK)
+                    {
+                        throw new ArgumentNullException();
+                    }
+
+                    var result = await JsonSerializer.DeserializeAsync<IEnumerable<T>>(await stringTask.Content.ReadAsStreamAsync());
+
+                    return result;
                 }
             }
 
@@ -34,14 +43,14 @@ namespace SchoolApp.Controllers
             if (await GetAccessibleServer())
             {
                 var jsonObject = JsonSerializer.Serialize<C>(obj);
-                var url = _server.Replace("/swagger/", "/api/") + listName[0] + "/" + listName[1] + "/";
+                var url = _server.Replace("/swagger/", "/api/") + listName[0] + "/" + listName[1];
 
                 using (HttpClient client = new HttpClient())
                 {
-                    var content = new StringContent(url, Encoding.UTF8, "application/json");
+                    var content = new StringContent(jsonObject, Encoding.UTF8, "application/json");
                     content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                    var stringTask = await client.PostAsync(jsonObject, content);
+                    var stringTask = await client.PostAsync(url, content);
 
                     if (stringTask.StatusCode != HttpStatusCode.OK)
                     {
@@ -65,16 +74,19 @@ namespace SchoolApp.Controllers
                 using (HttpClient client = new HttpClient())
                 {
                     var jsonObject = JsonSerializer.Serialize<C>(obj);
-                    var url = _server.Replace("/swagger/", "/api/") + listName[0] + "/" + listName[1] + "/" + listName[2] + "?" + listName[2] + "=" + listArgument[0];
+                    var url = _server.Replace("/swagger/", "/api/") + listName[0] + "/" + listName[1] + "/" + listName[2];
 
                     var content = new StringContent(jsonObject, Encoding.UTF8, "application/json");
                     content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                    await client.PostAsync(url, content);
+                    await client.PutAsync(url, content);
                 }
             }
-
-            throw new ArgumentNullException();
+            else
+            {
+                throw new ArgumentNullException();
+            }
+            
         }
 
         public async Task<IEnumerable<T>> GetList(string[] listName)

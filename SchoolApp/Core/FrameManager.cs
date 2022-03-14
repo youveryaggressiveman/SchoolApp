@@ -13,13 +13,14 @@ namespace SchoolApp.Core
 
         public static void SetSource<T>(T target) where T : Page
         {
-            var contain = MainFrame.Name.GetType();
+            var contain = MainFrame.Content?.GetType();
 
-            if (contain == typeof(T))
+            if (contain != typeof(T))
             {
-                MainFrame.NavigationService.RemoveBackEntry();
 
                 MainFrame.Navigate(target);
+
+                MainFrame.NavigationService.RemoveBackEntry();
 
                 GC.Collect();
             }

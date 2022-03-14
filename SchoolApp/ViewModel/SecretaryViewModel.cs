@@ -189,6 +189,14 @@ namespace SchoolApp.ViewModel
             StudentList = new ObservableCollection<Student>();
             CityListBySelectedCountry = new ObservableCollection<City>();
 
+            NewStudent = new Student();
+            NewStudent.User = new User();
+            NewStudent.Group = new Group();
+            AddressByNewStudent = new Address();
+            AddressByNewStudent.City = new List<City>();
+            PassportByNewStudent = new Passport();
+            
+
             RefactorNewStudent = new DelegateCommand(Refactor);
             DeleteNewStudent = new DelegateCommand(Delete);
             AddNewGroupInDatabase = new DelegateCommand(AddNewGroup);
@@ -234,9 +242,16 @@ namespace SchoolApp.ViewModel
 
         private async void AddNewGroup(object obj)
         {
-            if (StudentList.Count != 0)
+            if (StudentList.Count == 0)
             {
                 MessageBox.Show("Список группы не может быть пустым", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                return;
+            }
+
+            if(SelectedCurator == null || SelectedGroup == null)
+            {
+                MessageBox.Show("Выберите группу и куратора для занесения в бд", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 return;
             }
@@ -246,7 +261,6 @@ namespace SchoolApp.ViewModel
             var newGroup = new Group()
             {
                 Name = SelectedGroup.Name,
-                Curator = SelectedCurator,
                 CuratorID = SelectedCurator.ID,
             };
 
@@ -268,7 +282,7 @@ namespace SchoolApp.ViewModel
             {
                 foreach (var item in StudentList)
                 {
-                    item.Group = newGroup;
+                    item.GroupID = SelectedGroup.ID;
 
                     try
                     {
@@ -276,7 +290,7 @@ namespace SchoolApp.ViewModel
                     }
                     catch (Exception)
                     {
-                        MessageBox.Show($"Данные o {item.User.FIO} не смогли занестись. Попробуйте позже", "Занесение данных", MessageBoxButton.OK,
+                        MessageBox.Show($"Данные o {item.User.FIO} не смогли занестись. Попробуйте позже.", "Занесение данных", MessageBoxButton.OK,
                    MessageBoxImage.Information);
                         return;
                     }
@@ -306,11 +320,20 @@ namespace SchoolApp.ViewModel
                 string.IsNullOrEmpty(NewStudent.User.LastName) || string.IsNullOrEmpty(NewStudent.User.Password) ||
                 string.IsNullOrEmpty(NewStudent.User.Email) || string.IsNullOrEmpty(PassportByNewStudent.PassportNumber) ||
                 string.IsNullOrEmpty(PassportByNewStudent.PassportSerial) || PassportByNewStudent.DateBith == DateTime.Now ||
-                SelectedGroup == null || SelectedCountry == null || SelectedCity == null ||
+                SelectedCountry == null || SelectedCity == null ||
                 string.IsNullOrEmpty(AddressByNewStudent.AddressName) ||
                 string.IsNullOrEmpty(AddressByNewStudent.AddressNumber))
             {
                 MessageBox.Show("Заполните все поля", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                return;
+            }
+
+            if (!System.Text.RegularExpressions.Regex.IsMatch(NewStudent.User.Email, @"^[\w!#$%&'*+\-/=?\^_`{|}~]+(\.[\w!#$%&'*+\-/=?\^_`{|}~]+)*"
++ "@"
++ @"((([\-\w]+\.)+[a-zA-Z]{2,4})|(([0-9]{1,3}\.){3}[0-9]{1,3}))$"))
+            {
+                MessageBox.Show("Неверный формат e-mail", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 return;
             }
@@ -333,11 +356,13 @@ namespace SchoolApp.ViewModel
                         {
                             new City()
                             {
+                                ID = SelectedCity.ID,
                                 Name = SelectedCity.Name,
                                 Countries = new List<Country>()
                                 {
                                     new Country()
                                     {
+                                        ID = SelectedCountry.ID,
                                         Name = SelectedCountry.Name
                                     }
                                 }
@@ -371,7 +396,7 @@ namespace SchoolApp.ViewModel
 
             try
             {
-                listCurator = await _getCuratorListController.GetList(new string[] { "Employees" });
+                listCurator = await _getCuratorListController.GetList(new string[] { "Employee", "GetAll" });
                 listCountry = await _getCountryListController.GetList(new string[] { "Country", "GetAll" });
                 listGroup = await _getGroupListController.GetList(new string[] { "Group", "GetAll" });
 

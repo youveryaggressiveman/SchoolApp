@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace SchoolApp.Model
@@ -14,6 +15,8 @@ namespace SchoolApp.Model
         public string? LastName { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
+        public string? Code { get; set; }
+        [JsonIgnore]
         public string FIO => SecondName + " " + FirstName[0] + "." + (LastName != null ? LastName[0] + "." : "");
 
         public int AddressID { get; set; }

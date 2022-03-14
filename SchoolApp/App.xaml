@@ -5,7 +5,7 @@
                      xmlns:hc="https://handyorg.github.io/handycontrol"
              Startup="Application_Startup"
 
-             StartupUri="/View/Windows/AuthWindow.xaml">
+             StartupUri="/View/Windows/MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

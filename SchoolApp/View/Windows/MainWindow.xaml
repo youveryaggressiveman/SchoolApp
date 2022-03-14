@@ -15,7 +15,7 @@
     <Grid Background="Transparent"
           >
         <Grid.RowDefinitions>
-            <RowDefinition Height="150"/>
+            <RowDefinition Height="100"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -79,10 +79,18 @@
                     VerticalAlignment="Top"
                     Style="{StaticResource ButtonDashedWarning.Small}"/>
         </Grid>
-        <Frame Background="White"
+        <Frame BorderThickness="2"
+               hc:BorderElement.CornerRadius="11 0 11 11"
+               BorderBrush="White"
                Grid.Row="1"
                Grid.Column="1"
-               Name="mainFrame" />
+               Name="mainFrame" >
+            <Frame.Resources>
+                <Style TargetType="{x:Type Border}">
+                    <Setter Property="CornerRadius" Value="11 0 11 11"/>
+                </Style>
+            </Frame.Resources>
+        </Frame>
       
     </Grid>
 </Window>

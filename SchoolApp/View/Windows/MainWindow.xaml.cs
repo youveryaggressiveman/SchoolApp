@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using SchoolApp.Core;
+using SchoolApp.View.Pages;
 using SchoolApp.ViewModel;
 
 namespace SchoolApp
@@ -28,6 +30,9 @@ namespace SchoolApp
             InitializeComponent();
 
             DataContext = _mainViewModel = new MainViewModel(mainFrame);
+
+            FrameManager.MainFrame = mainFrame;
+            FrameManager.SetSource(new SecretaryPage());
         }
 
         private void DragWindow(object sender, RoutedEventArgs e)

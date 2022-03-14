@@ -49,7 +49,7 @@ namespace SchoolApp.ViewModel
             ExitAccount = new DelegateCommand(Exit);
 
             LoadUserInfo();
-            GetFrame(mainFrame);
+            //GetFrame(mainFrame);
         }
 
         public void SetSplash(bool visibl)
