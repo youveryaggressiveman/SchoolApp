@@ -17,7 +17,7 @@ namespace SchoolApp.Controllers
 
         public async Task<bool> GetUserAsync(string email, string password)
         {
-            if (await GetAccessibleServer())
+            if (await ServerManager.GetAccessibleServer())
             {
                 using (HttpClient client = new HttpClient())
                 {
@@ -37,25 +37,6 @@ namespace SchoolApp.Controllers
             }
 
             return false;
-        }
-
-        public async Task<bool> GetAccessibleServer()
-        {
-
-            var request = WebRequest.Create(_server);
-            HttpWebResponse response = null;
-
-            try
-            {
-                response = (HttpWebResponse)await request.GetResponseAsync();
-                response.Close();
-
-                return true;
-            }
-            catch (Exception)
-            {
-                throw new ArgumentNullException();
-            }
         }
     }
 }

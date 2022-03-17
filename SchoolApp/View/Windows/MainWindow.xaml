@@ -7,7 +7,7 @@
         xmlns:hc="https://handyorg.github.io/handycontrol"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        Title="Главное окно" Height="650" Width="1000"
+        Title="Главное окно" Height="650" Width="1100"
         FontFamily="Quicksand"
         Foreground="#333333"
         Background="{x:Null}"
@@ -35,6 +35,7 @@
                     MouseLeftButtonDown="DragWindow">
             </Border>
         </Grid>
+        
         <Border Grid.Column="0"
                 Opacity="0.98"
                 Grid.RowSpan="2"

@@ -12,6 +12,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
+using MessageBox = HandyControl.Controls.MessageBox;
 
 namespace SchoolApp.ViewModel
 {
@@ -76,6 +78,21 @@ namespace SchoolApp.ViewModel
 
             _controller = new AuthViewModelController();
 
+            DispatcherTimer timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromMinutes(5);
+
+            timer.Tick += async (sender, args) =>
+            {
+                if (!await ServerManager.GetAccessibleServer())
+                {
+                    MessageBox.Fatal("Соединение отсутсвует. Приложение будет закрыто", "Ошибка");
+
+                    Application.Current.Shutdown();
+                }
+            };
+
+            timer.Start();
+
             CheckUser();
         }
 
@@ -96,7 +113,7 @@ namespace SchoolApp.ViewModel
                 }
                 catch (Exception)
                 {
-                    MessageBox.Show("Произошла ошибка подключения", "Проверка подключения", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Error("Произошла ошибка подключения", "Проверка подключения");
                     Properties.Settings.Default.Reset();
                     return;
                 }
@@ -159,7 +176,7 @@ namespace SchoolApp.ViewModel
         {
             if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
             {
-                MessageBox.Show("Поля не могут быть пустыми", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Info("Поля не могут быть пустыми", "Информация");
 
                 return;
             }
@@ -168,7 +185,7 @@ namespace SchoolApp.ViewModel
 + "@"
 + @"((([\-\w]+\.)+[a-zA-Z]{2,4})|(([0-9]{1,3}\.){3}[0-9]{1,3}))$"))
             {
-                MessageBox.Show("Неверный формат e-mail", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Info("Неверный формат e-mail", "Информация");
 
                 return;
             }
@@ -186,11 +203,11 @@ namespace SchoolApp.ViewModel
                     return;
                 }
 
-                MessageBox.Show("Такого пользователя не существует", "Проверка данных", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Info("Такого пользователя не существует", "Проверка данных");
             }
             catch (Exception)
             {
-                MessageBox.Show("Произошла ошибка подключения", "Проверка подключения", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Error("Произошла ошибка подключения", "Проверка подключения");
                 return;
             }
             finally

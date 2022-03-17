@@ -18,7 +18,7 @@ namespace SchoolApp.Controllers
 
         public async Task<IEnumerable<T>> GetListBySomething(string[] listName, string[] listArgument)
         {
-            if (await GetAccessibleServer())
+            if (await ServerManager.GetAccessibleServer())
             {
                 using (HttpClient client = new HttpClient())
                 {
@@ -40,7 +40,7 @@ namespace SchoolApp.Controllers
 
         public async Task<Guid> PostListSomething<C>(C obj, string[] listName, string[] listArgument) where C : class
         {
-            if (await GetAccessibleServer())
+            if (await ServerManager.GetAccessibleServer())
             {
                 var jsonObject = JsonSerializer.Serialize<C>(obj);
                 var url = _server.Replace("/swagger/", "/api/") + listName[0] + "/" + listName[1];
@@ -69,7 +69,7 @@ namespace SchoolApp.Controllers
 
         public async Task PutAsync<C>(C obj, string[] listName, string[] listArgument)
         {
-            if (await GetAccessibleServer())
+            if (await ServerManager.GetAccessibleServer())
             {
                 using (HttpClient client = new HttpClient())
                 {
@@ -91,7 +91,7 @@ namespace SchoolApp.Controllers
 
         public async Task<IEnumerable<T>> GetList(string[] listName)
         {
-            if (await GetAccessibleServer())
+            if (await ServerManager.GetAccessibleServer())
             {
                 using (HttpClient client = new HttpClient())
                 {
@@ -111,25 +111,6 @@ namespace SchoolApp.Controllers
             }
 
             throw new ArgumentNullException();
-        }
-
-        public async Task<bool> GetAccessibleServer()
-        {
-
-            var request = WebRequest.Create(_server);
-            HttpWebResponse response = null;
-
-            try
-            {
-                response = (HttpWebResponse)await request.GetResponseAsync();
-                response.Close();
-
-                return true;
-            }
-            catch (Exception)
-            {
-                throw new ArgumentNullException();
-            }
         }
     }
 }

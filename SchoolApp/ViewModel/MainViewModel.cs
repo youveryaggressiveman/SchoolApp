@@ -8,11 +8,14 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 using SchoolApp.Command;
+using SchoolApp.Controllers;
 using SchoolApp.Core;
 using SchoolApp.Properties;
 using SchoolApp.View.Pages;
 using SchoolApp.View.Windows;
+using MessageBox = HandyControl.Controls.MessageBox;
 
 namespace SchoolApp.ViewModel
 {
@@ -47,6 +50,21 @@ namespace SchoolApp.ViewModel
         public MainViewModel(Frame mainFrame)
         {
             ExitAccount = new DelegateCommand(Exit);
+
+            DispatcherTimer timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromMinutes(5);
+
+            timer.Tick += async (sender, args) =>
+            {
+                if (!await ServerManager.GetAccessibleServer())
+                {
+                    MessageBox.Fatal("Соединение отсутсвует. Приложение будет закрыто", "Ошибка");
+
+                    Application.Current.Shutdown();
+                }
+            };
+
+            timer.Start();
 
             LoadUserInfo();
             //GetFrame(mainFrame);

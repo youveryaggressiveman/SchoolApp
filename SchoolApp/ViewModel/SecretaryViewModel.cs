@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using SchoolApp.Command;
 using SchoolApp.Controllers;
 using SchoolApp.Model;
@@ -169,6 +171,7 @@ namespace SchoolApp.ViewModel
             }
         }
 
+        public ICommand RefreshCode { get; set; }
         public ICommand AddNewGroupInDatabase { get; private set; }
         public ICommand AddNewUserInGroup { get; private set; }
         public ICommand DeleteNewStudent { get; private set; }
@@ -189,13 +192,13 @@ namespace SchoolApp.ViewModel
             StudentList = new ObservableCollection<Student>();
             CityListBySelectedCountry = new ObservableCollection<City>();
 
+            RefreshCode = new DelegateCommand(NewCode);
             NewStudent = new Student();
             NewStudent.User = new User();
             NewStudent.Group = new Group();
             AddressByNewStudent = new Address();
             AddressByNewStudent.City = new List<City>();
             PassportByNewStudent = new Passport();
-            
 
             RefactorNewStudent = new DelegateCommand(Refactor);
             DeleteNewStudent = new DelegateCommand(Delete);
@@ -203,6 +206,16 @@ namespace SchoolApp.ViewModel
             AddNewUserInGroup = new DelegateCommand(AddNewUser);
 
             LoadAllInfo();
+        }
+
+        private void NewCode(object obj)
+        {
+            Random random = new Random();
+
+            for (int i = 0; i < 6; i++)
+            {
+                NewStudent.User.Code += random.Next(0, 10);
+            }
         }
 
         private void Refactor(object arg)
@@ -217,10 +230,27 @@ namespace SchoolApp.ViewModel
             NewStudent.User.LastName = SelectedStudent.User.LastName;
             NewStudent.User.Password = SelectedStudent.User.Password;
             NewStudent.User.Email = SelectedStudent.User.Email;
+            NewStudent.User.Code = SelectedStudent.User.Code;
 
             PassportByNewStudent.PassportNumber = SelectedStudent.User.Passport.PassportNumber;
             PassportByNewStudent.PassportSerial = SelectedStudent.User.Passport.PassportSerial;
-            PassportByNewStudent.DateBith = SelectedStudent.User.Passport.DateBith;
+            PassportByNewStudent.DateBirth = SelectedStudent.User.Passport.DateBirth;
+
+            foreach (var item in CountryList)
+            {
+                if (item.Equals(SelectedCountry))
+                {
+                    SelectedCountry = item;
+                }
+            }
+
+            foreach (var item in CityListBySelectedCountry)
+            {
+                if (item.Equals(SelectedCity))
+                {
+                    SelectedCity = item;
+                }
+            }
         }
 
         private void Delete(object arg)
@@ -244,14 +274,14 @@ namespace SchoolApp.ViewModel
         {
             if (StudentList.Count == 0)
             {
-                MessageBox.Show("Список группы не может быть пустым", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Info("Список группы не может быть пустым", "Информация");
 
                 return;
             }
 
             if(SelectedCurator == null || SelectedGroup == null)
             {
-                MessageBox.Show("Выберите группу и куратора для занесения в бд", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Info("Выберите группу и куратора для занесения в бд", "Информация");
 
                 return;
             }
@@ -272,8 +302,7 @@ namespace SchoolApp.ViewModel
             {
                 SetSplash(false);
 
-                MessageBox.Show("Произошла ошибка подключения", "Получение данных", MessageBoxButton.OK,
-                   MessageBoxImage.Error);
+                MessageBox.Error("Произошла ошибка подключения", "Получение данных");
 
                 throw;
             }
@@ -290,8 +319,7 @@ namespace SchoolApp.ViewModel
                     }
                     catch (Exception)
                     {
-                        MessageBox.Show($"Данные o {item.User.FIO} не смогли занестись. Попробуйте позже.", "Занесение данных", MessageBoxButton.OK,
-                   MessageBoxImage.Information);
+                        MessageBox.Info($"Данные o {item.User.FIO} не смогли занестись. Попробуйте позже.", "Занесение данных");
                         return;
                     }
                     finally
@@ -303,8 +331,7 @@ namespace SchoolApp.ViewModel
             }
             catch (Exception e)
             {
-                MessageBox.Show("Произошла ошибка подключения", "Получение данных", MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                MessageBox.Error("Произошла ошибка подключения", "Получение данных");
 
                 return;
             }
@@ -319,12 +346,12 @@ namespace SchoolApp.ViewModel
             if (string.IsNullOrEmpty(NewStudent.User.FirstName) || string.IsNullOrEmpty(NewStudent.User.SecondName) ||
                 string.IsNullOrEmpty(NewStudent.User.LastName) || string.IsNullOrEmpty(NewStudent.User.Password) ||
                 string.IsNullOrEmpty(NewStudent.User.Email) || string.IsNullOrEmpty(PassportByNewStudent.PassportNumber) ||
-                string.IsNullOrEmpty(PassportByNewStudent.PassportSerial) || PassportByNewStudent.DateBith == DateTime.Now ||
+                string.IsNullOrEmpty(PassportByNewStudent.PassportSerial) || PassportByNewStudent.DateBirth == DateTime.Now ||
                 SelectedCountry == null || SelectedCity == null ||
                 string.IsNullOrEmpty(AddressByNewStudent.AddressName) ||
                 string.IsNullOrEmpty(AddressByNewStudent.AddressNumber))
             {
-                MessageBox.Show("Заполните все поля", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Info("Заполните все поля", "Информация");
 
                 return;
             }
@@ -333,7 +360,7 @@ namespace SchoolApp.ViewModel
 + "@"
 + @"((([\-\w]+\.)+[a-zA-Z]{2,4})|(([0-9]{1,3}\.){3}[0-9]{1,3}))$"))
             {
-                MessageBox.Show("Неверный формат e-mail", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Info("Неверный формат e-mail", "Информация");
 
                 return;
             }
@@ -372,6 +399,8 @@ namespace SchoolApp.ViewModel
                 }
             };
 
+            SetDefault();
+
             StudentList.Add(newStudent);
         }
 
@@ -386,9 +415,22 @@ namespace SchoolApp.ViewModel
             }
         }
 
+        private void SetDefault()
+        {
+            NewStudent = new Student();
+            AddressByNewStudent = new Address();
+            PassportByNewStudent = new Passport();
+
+            LoadAllInfo();
+        }
+
         private async void LoadAllInfo()
         {
             SetSplash(true);
+
+            CountryList = new ObservableCollection<Country>();
+            CuratorList = new ObservableCollection<Employee>();
+            GroupList = new ObservableCollection<Group>();
 
             IEnumerable<Group> listGroup;
             IEnumerable<Country> listCountry;
@@ -407,8 +449,7 @@ namespace SchoolApp.ViewModel
             }
             catch (Exception e)
             {
-                MessageBox.Show("Произошла ошибка подключения", "Получение данных", MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                MessageBox.Error("Произошла ошибка подключения", "Получение данных");
 
                 return;
             }
@@ -422,21 +463,24 @@ namespace SchoolApp.ViewModel
         {
             SetSplash(true);
 
+            CityListBySelectedCountry = new ObservableCollection<City>();
             IEnumerable<City> listCity;
 
             try
             {
-                listCity = await _getCityListByCountryController.GetListBySomething(new string[] {"City","GetCityByCountry","countryID" }, new string[] { SelectedCountry.ID.ToString()});
-
-                foreach (var item in listCity)
+                if (SelectedCountry != null)
                 {
-                    CityListBySelectedCountry.Add(item);
+                    listCity = await _getCityListByCountryController.GetListBySomething(new string[] { "City", "GetCityByCountry", "countryID" }, new string[] { SelectedCountry.ID.ToString() });
+
+                    foreach (var item in listCity)
+                    {
+                        CityListBySelectedCountry.Add(item);
+                    }
                 }
             }
             catch (Exception e)
             {
-                MessageBox.Show("Произошла ошибка подключения", "Получение данных", MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                MessageBox.Error("Произошла ошибка подключения", "Получение данных");
 
                 return;
             }
