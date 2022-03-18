@@ -9,4 +9,7 @@
     <Brush x:Key="WarningBrush">
         #333333
     </Brush>
+    <Brush x:Key="InfoBrush">
+        #ffffff
+    </Brush>
 </ResourceDictionary>

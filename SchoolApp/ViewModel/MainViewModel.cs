@@ -22,8 +22,19 @@ namespace SchoolApp.ViewModel
     public class MainViewModel : BaseViewModel
     {
         private Visibility _visibility = Visibility.Collapsed;
+        private Visibility _visibilitySecretary = Visibility.Collapsed;
 
         private User _thisUser;
+
+        public Visibility VisibilitySecretary
+        {
+            get => _visibilitySecretary;
+            set
+            {
+                _visibilitySecretary = value;
+                OnPropertyChanged(nameof(VisibilitySecretary));
+            }
+        }
 
         public Visibility Visibility
         {
@@ -45,10 +56,25 @@ namespace SchoolApp.ViewModel
             }
         }
 
+        public ICommand OpenFirstPageCommand { get; private set; }
+        public ICommand OpenSecondPageCommand { get; private set; }
         public ICommand ExitAccount { get; private set; }
 
-        public MainViewModel(Frame mainFrame)
+        public MainViewModel()
         {
+            UserSingleton.User = new User() 
+            {
+                FirstName = "GG",
+                SecondName = "GG",
+                LastName = "GG",
+                Role = new Role()
+                {
+                    Name = "Секретарь"
+                }
+            };
+
+            OpenFirstPageCommand = new DelegateCommand(FirstRealCommand);
+            OpenSecondPageCommand = new DelegateCommand(SecondRealCommand);
             ExitAccount = new DelegateCommand(Exit);
 
             DispatcherTimer timer = new DispatcherTimer();
@@ -66,8 +92,34 @@ namespace SchoolApp.ViewModel
 
             timer.Start();
 
+            LoadVisibilityMenuButton();
             LoadUserInfo();
-            //GetFrame(mainFrame);
+        }
+
+        private void FirstRealCommand(object arg)
+        {
+            if (UserSingleton.User.Role.Name == "Секретарь")
+            {
+                FrameManager.SetSource(new SecretaryPage());
+            }
+        }
+
+        private void SecondRealCommand(object arg)
+        {
+            if (UserSingleton.User.Role.Name == "Секретарь")
+            {
+                FrameManager.SetSource(new SchedulePage());
+            }
+        }
+
+        private void LoadVisibilityMenuButton()
+        {
+            VisibilitySecretary = Visibility.Collapsed;
+
+            if (UserSingleton.User.Role.Name == "Секретарь")
+            {
+                VisibilitySecretary = Visibility.Visible;
+            }
         }
 
         public void SetSplash(bool visibl)
@@ -102,12 +154,10 @@ namespace SchoolApp.ViewModel
             }
         }
 
-        public void GetFrame(Frame mainFrame)
+        public void GetFrame()
         {
             if (UserSingleton.User.Role.Name == "Секретарь")
             {
-                FrameManager.MainFrame = mainFrame;
-
                 FrameManager.SetSource(new SecretaryPage());
 
                 return;
@@ -115,8 +165,6 @@ namespace SchoolApp.ViewModel
 
             if (UserSingleton.User.Role.Name == "Служба безопасности")
             {
-                FrameManager.MainFrame = mainFrame;
-
                 FrameManager.SetSource(new SecurityPage());
 
                 return;
@@ -124,8 +172,6 @@ namespace SchoolApp.ViewModel
 
             if (UserSingleton.User.Role.Name == "Пользователь")
             {
-                FrameManager.MainFrame = mainFrame;
-
                 FrameManager.SetSource(new ClientPage());
             }
         }

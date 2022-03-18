@@ -29,10 +29,11 @@ namespace SchoolApp
         {
             InitializeComponent();
 
-            DataContext = _mainViewModel = new MainViewModel(mainFrame);
+            DataContext = _mainViewModel = new MainViewModel();
 
             FrameManager.MainFrame = mainFrame;
-            FrameManager.SetSource(new SecretaryPage());
+
+            (DataContext as MainViewModel).GetFrame();
         }
 
         private void DragWindow(object sender, RoutedEventArgs e)

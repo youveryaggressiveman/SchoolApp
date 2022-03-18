@@ -19,7 +19,7 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="200"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid Grid.Row="0"
@@ -35,7 +35,40 @@
                     MouseLeftButtonDown="DragWindow">
             </Border>
         </Grid>
-        
+        <hc:SideMenu  Width="150" 
+                         ExpandMode="ShowAll"
+                      Grid.Row="1"
+                      Margin="10"
+                         >
+            <hc:Interaction.Triggers>
+                <hc:EventTrigger EventName="SelectionChanged">
+
+                </hc:EventTrigger>
+            </hc:Interaction.Triggers>
+            <hc:SideMenuItem  
+                Visibility="{Binding VisibilitySecretary}"
+                Command="{Binding FirstCommand}"
+                    Header="Меню секретаря">
+                <hc:SideMenuItem.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius"
+                                Value="11 11 0 0"/>
+                    </Style>
+                </hc:SideMenuItem.Resources>
+                <hc:SideMenuItem Header="Новые группы" Command="{Binding OpenFirstPageCommand}" CommandParameter="{Binding Header,RelativeSource={RelativeSource Self}}">
+                    
+                </hc:SideMenuItem>
+                <hc:SideMenuItem Header="Расписание"  Command="{Binding OpenSecondPageCommand}" CommandParameter="{Binding Header,RelativeSource={RelativeSource Self}}">
+                   
+                </hc:SideMenuItem>
+            </hc:SideMenuItem>
+            <hc:SideMenu.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius"
+                            Value="11"/>
+                </Style>
+            </hc:SideMenu.Resources>
+        </hc:SideMenu>
         <Border Grid.Column="0"
                 Opacity="0.98"
                 Grid.RowSpan="2"
@@ -84,6 +117,7 @@
                hc:BorderElement.CornerRadius="11 0 11 11"
                BorderBrush="White"
                Grid.Row="1"
+               NavigationUIVisibility="Hidden"
                Grid.Column="1"
                Name="mainFrame" >
             <Frame.Resources>
@@ -92,6 +126,34 @@
                 </Style>
             </Frame.Resources>
         </Frame>
-      
+        <Border x:Name="Splash"
+                    Visibility="{Binding Visibility}"
+                    Grid.Row="0"
+                Grid.ColumnSpan="2"
+                    Grid.RowSpan="3"
+                    Opacity=".35"
+                    Background="Black" />
+        <Border Grid.Row="1"
+                    Visibility="{Binding Visibility}"
+                    Grid.RowSpan="2"
+                Grid.ColumnSpan="2"
+                    Background="White"
+                    Height="150"
+                    Width="400"
+                CornerRadius="11">
+            <TextBlock VerticalAlignment="Center"
+                           HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <hc:CircleProgressBar IsIndeterminate="True"
+                                          Width="60"
+                                          Height="60" />
+                    <TextBlock
+                           Text="Подождите..."
+                           FontSize="25"
+                           VerticalAlignment="Center"
+                           Margin="10,0,0,0" />
+                </StackPanel>
+            </TextBlock>
+        </Border>
     </Grid>
 </Window>

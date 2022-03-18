@@ -70,7 +70,10 @@ namespace SchoolApp.ViewModel
                 _selectedEmployee = value;
                 OnPropertyChanged(nameof(SelectedEmployee));
 
-                UpdateInfo(SelectedEmployee.FIO);
+                if (SelectedEmployee != null)
+                {
+                    UpdateInfo(SelectedEmployee?.FIO);
+                }
             }
         }
 
@@ -92,7 +95,10 @@ namespace SchoolApp.ViewModel
                 _selectedGroup = value;
                 OnPropertyChanged(nameof(SelectedGroup));
 
-                UpdateInfo(SelectedGroup.Name);
+                if (SelectedGroup != null)
+                {
+                    UpdateInfo(SelectedGroup?.Name);
+                }
             }
         }
 
@@ -104,7 +110,10 @@ namespace SchoolApp.ViewModel
                 _selectedTimeSubject = value;
                 OnPropertyChanged(nameof(SelectedTimeSubject));
 
-                UpdateInfo(SelectedTimeSubject.Time);
+                if (SelectedTimeSubject != null)
+                {
+                    UpdateInfo(SelectedTimeSubject?.Time);
+                }
             }
         }
 
@@ -203,6 +212,9 @@ namespace SchoolApp.ViewModel
             TimeSubjectList = new ObservableCollection<TimeSubject>();
             SubjectList = new ObservableCollection<Subject>();
 
+
+            Initialize();
+
             LoadAllInfo();
         }
 
@@ -224,11 +236,17 @@ namespace SchoolApp.ViewModel
 
         private void RemoveInListNewSchedule(object obj)
         {
-            foreach (var item in ScheduleList)
+            foreach (var item in ScheduleList.ToList())
             {
                 if (item.Equals(SelectedSchedule))
                 {
                     ScheduleList.Remove(item);
+
+                    Initialize();
+                    LoadAllInfo();
+                    UpdateInfo(item.Employee.FIO);
+                    UpdateInfo(item.TimeSubject.Time);
+                    UpdateInfo(item.Group.Name);
                 }
             }
         }
@@ -238,12 +256,25 @@ namespace SchoolApp.ViewModel
             Schedule newSchedule = new Schedule()
             {
                 EmployeeID = SelectedEmployee.ID,
+                Employee = SelectedEmployee,
                 GroupID = SelectedGroup.ID,
+                Group = SelectedGroup,
                 SubjectID = SelectedSubject.ID,
-                TimeSubjectID = SelectedTimeSubject.ID
+                Subject = SelectedSubject,
+                TimeSubjectID = SelectedTimeSubject.ID,
+                TimeSubject = SelectedTimeSubject
             };
 
+
+
             ScheduleList.Add(newSchedule);
+        }
+
+        private void Initialize()
+        {
+            _deleteEmployeeList = new List<Employee>();
+            _deleteGroupList = new List<Group>();
+            _deleteTimeSubjectList = new List<TimeSubject>();
         }
 
         private void SetSplash(bool isEnabled)
@@ -261,37 +292,40 @@ namespace SchoolApp.ViewModel
         {
             if (ScheduleList.Count == 0)
             {
-                return;;
+                return;
             }
 
-            foreach (var item in _deleteEmployeeList)
+            foreach (var item in _deleteEmployeeList.ToList())
             {
                 EmployeeList.Add(item);
 
                 _deleteEmployeeList.Remove(item);
             }
 
-            foreach (var item in _deleteGroupList)
+            foreach (var item in _deleteGroupList.ToList())
             {
-                GroupList.Add(item);
+                if (!GroupList.Contains(item))
+                {
+                    GroupList.Add(item);
 
-                _deleteGroupList.Remove(item);
+                    _deleteGroupList.Remove(item);
+                }
             }
 
-            foreach (var item in _deleteTimeSubjectList)
+            foreach (var item in _deleteTimeSubjectList.ToList())
             {
                 TimeSubjectList.Add(item);
 
                 _deleteTimeSubjectList.Remove(item);
             }
 
-            foreach (var item in ScheduleList)
+            foreach (var item in ScheduleList.ToList())
             {
                 if (item.Employee.FIO == name)
                 {
-                    foreach (var group in GroupList)
+                    foreach (var group in GroupList.ToList())
                     {
-                        if (group == item.Group)
+                        if (group.ID == item.Group.ID)
                         {
                             _deleteGroupList.Add(group);
 
@@ -299,9 +333,9 @@ namespace SchoolApp.ViewModel
                         }
                     }
 
-                    foreach (var timeSubject in TimeSubjectList)
+                    foreach (var timeSubject in TimeSubjectList.ToList())
                     {
-                        if (timeSubject == item.TimeSubject)
+                        if (timeSubject.ID == item.TimeSubject.ID)
                         {
                             _deleteTimeSubjectList.Add(timeSubject);
 
@@ -312,9 +346,9 @@ namespace SchoolApp.ViewModel
 
                 if (item.Group.Name == name)
                 {
-                    foreach (var timeSubject in TimeSubjectList)
+                    foreach (var timeSubject in TimeSubjectList.ToList())
                     {
-                        if (timeSubject == item.TimeSubject)
+                        if (timeSubject.ID == item.TimeSubject.ID)
                         {
                             _deleteTimeSubjectList.Add(timeSubject);
 
@@ -322,9 +356,9 @@ namespace SchoolApp.ViewModel
                         }
                     }
 
-                    foreach (var employee in EmployeeList)
+                    foreach (var employee in EmployeeList.ToList())
                     {
-                        if (employee == item.Employee)
+                        if (employee.ID == item.Employee.ID)
                         {
                             _deleteEmployeeList.Add(employee);
 
@@ -335,9 +369,9 @@ namespace SchoolApp.ViewModel
 
                 if (item.TimeSubject.Time == name)
                 {
-                    foreach (var employee in EmployeeList)
+                    foreach (var employee in EmployeeList.ToList())
                     {
-                        if (employee == item.Employee)
+                        if (employee.ID == item.Employee.ID)
                         {
                             _deleteEmployeeList.Add(employee);
 
@@ -345,9 +379,9 @@ namespace SchoolApp.ViewModel
                         }
                     }
 
-                    foreach (var group in GroupList)
+                    foreach (var group in GroupList.ToList())
                     {
-                        if (group == item.Group)
+                        if (group.ID == item.Group.ID)
                         {
                             _deleteGroupList.Add(group);
 
@@ -360,6 +394,12 @@ namespace SchoolApp.ViewModel
 
         private async void LoadAllInfo()
         {
+            GroupList = new ObservableCollection<Group>();
+            EmployeeList = new ObservableCollection<Employee>();
+            DayOfWeekList = new ObservableCollection<DayOfWeek>();
+            TimeSubjectList = new ObservableCollection<TimeSubject>();
+            SubjectList = new ObservableCollection<Subject>();
+
             IEnumerable<Group> groupList;
             IEnumerable<Employee> employeeList;
             IEnumerable<DayOfWeek> dayOfWeekList;
@@ -384,7 +424,7 @@ namespace SchoolApp.ViewModel
             }
             catch (Exception e)
             {
-                MessageBox.Error("Произошла ошибка подключения", "Получение данных");
+                MessageBox.Error("Произошла ошибка подключения. " + e.Message, "Получение данных");
             }
             finally
             {

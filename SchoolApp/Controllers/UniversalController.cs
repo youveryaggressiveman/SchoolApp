@@ -97,20 +97,17 @@ namespace SchoolApp.Controllers
                 {
                     var stringTask = await client.GetAsync(_server.Replace("/swagger/", "/api/") + listName[0] + "/" + listName[1]);
 
-                    if (stringTask.StatusCode != HttpStatusCode.OK)
+                    if (stringTask.StatusCode == HttpStatusCode.OK)
                     {
-                        throw new ArgumentNullException();
+                        var result =
+                             await JsonSerializer.DeserializeAsync<IEnumerable<T>>(
+                                 await stringTask.Content.ReadAsStreamAsync());
+
+                        return result;
                     }
-
-                    var result =
-                        await JsonSerializer.DeserializeAsync<IEnumerable<T>>(
-                            await stringTask.Content.ReadAsStreamAsync());
-
-                    return result;
                 }
             }
-
-            throw new ArgumentNullException();
+            throw new OperationCanceledException();
         }
     }
 }

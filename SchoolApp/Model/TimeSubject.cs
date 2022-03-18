@@ -10,11 +10,10 @@ namespace SchoolApp.Model
     public class TimeSubject
     {
         public int ID { get; set; }
-        public DateTime Begin { get; set; }
-        public DateTime End { get; set; }
+        public string Begin { get; set; }
+        public string End { get; set; }
 
         [JsonIgnore]
-        public string Time => Begin.Hour.ToString() + ":" + Begin.Minute.ToString() + " - " + End.Hour.ToString() +
-                              ":" + End.Minute.ToString();
+        public string Time => Begin + " - " + End;
     }
 }

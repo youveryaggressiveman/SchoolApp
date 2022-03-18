@@ -1,12 +1,150 @@
-﻿<Window x:Class="SchoolApp.View.Windows.CreateScheduleWindow"
+﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SchoolApp.View.Windows"
+        xmlns:ViewModel="clr-namespace:SchoolApp.ViewModel" x:Class="SchoolApp.View.Windows.CreateScheduleWindow"
         mc:Ignorable="d"
-        Title="CreateScheduleWindow" Height="450" Width="800">
+        FontFamily="Quicksand"
+        WindowStartupLocation="CenterOwner"
+        Foreground="#333333"
+        Background="{x:Null}"
+        Style="{StaticResource castomWindow}"
+        Title="CreateScheduleWindow" Height="500" Width="800">
+    <Window.DataContext>
+        <ViewModel:CreateScheduleViewModel/>
+    </Window.DataContext>
     <Grid>
-        
+        <Border Background="{StaticResource PrimaryBrush}"
+                BorderThickness="1"
+                CornerRadius="11">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="75"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Border Background="{StaticResource InfoBrush}"
+                        Width="250"
+                        Opacity="0.90"
+                        Panel.ZIndex="1"
+                        Margin="20"
+                        Height="400"
+                        BorderThickness="1"
+                        CornerRadius="11">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ComboBox Margin="25"
+                                  ItemsSource="{Binding EmployeeList}"
+                                  DisplayMemberPath="FIO"
+                                  SelectedItem="{Binding SelectedEmployee}"/>
+                        <ComboBox Margin="25"
+                                  Grid.Row="1"
+                                  ItemsSource="{Binding SubjectList}"
+                                  DisplayMemberPath="Name"
+                                  SelectedItem="{Binding SelectedSubject}"/>
+                        <ComboBox Margin="25"
+                                  Grid.Row="2"
+                                  ItemsSource="{Binding GroupList}"
+                                  DisplayMemberPath="Name"
+                                  SelectedItem="{Binding SelectedGroup}"/>
+                        <ComboBox Margin="25"
+                                  Grid.Row="3"
+                                  ItemsSource="{Binding TimeSubjectList}"
+                                  DisplayMemberPath="Time"
+                                  SelectedItem="{Binding SelectedTimeSubject}"/>
+                        <ComboBox Margin="25"
+                                  ItemsSource="{Binding DayOfWeekList}"
+                                  DisplayMemberPath="Name"
+                                  Grid.Row="4"
+                                  SelectedItem="{Binding SelectedDayOfWeek}"/>
+
+                    </Grid>
+                </Border>
+                <StackPanel Grid.Column="1"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                    <Button Command="{Binding AddSchedule}"
+                            VerticalAlignment="Bottom"
+                                Content="🡺"
+                            Padding="0"
+                            Margin="10"
+                            FontSize="18"
+                            Width="50"/>
+                    <Button Command="{Binding RemoveSchedule}"
+                            VerticalAlignment="Bottom"
+                                Content="🡸"
+                            Margin="10"
+                            Padding="0"
+                            FontSize="18"
+                            Width="50"/>
+                </StackPanel>
+                <ListView ItemsSource="{Binding ScheduleList}"
+                          Grid.Column="2"
+                                      SelectedItem="{Binding SelectedSchedule}"
+                                      Margin="20"
+                                      Height="400"
+                                      Template="{DynamicResource ArrowedItemsControl}"
+                                      ItemContainerStyle="{StaticResource listStyle}"
+                                      Width="250"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      Grid.RowSpan="2"
+                          
+                                      Style="{StaticResource ListBoxBaseStyle}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Vertical"
+                                                    HorizontalAlignment="Left"
+                                                    VerticalAlignment="Center">
+                                <TextBlock 
+                                                       Padding="5">
+                                            <Run Text="Время:"
+                                                 FontWeight="Bold"
+                                                 FontSize="18" />
+                            <Run Text="{Binding TimeSubject.Time, Mode=OneWay}" FontWeight="Bold"
+                                 FontSize="18"/><Run Text=","
+                                 FontWeight="Bold"
+                                 FontSize="18" />
+                                <LineBreak />
+                                <Run Text="Преподаватель:"
+                                     FontSize="15" />
+                                <Run Text="{Binding Employee.FIO, Mode=OneWay}"
+                                     FontSize="15" /><Run Text=","
+                                     FontSize="15" />
+                                    <LineBreak />
+                                <Run Text="Группа:"
+                                     FontSize="15" />
+                                <Run Text="{Binding Group.Name}"
+                                     FontSize="15" /><Run Text=","
+                                     FontSize="15" />
+                                        <LineBreak />
+                                <Run Text="Предмет:"
+                                     FontSize="15" />
+                                <Run Text="{Binding Subject.Name}"
+                                     FontSize="15" /><Run Text=";"
+                                     FontSize="15" />
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+
+                    </ListView.ItemTemplate>
+
+                    <ListView.Resources>
+                        <Style TargetType="{x:Type Border}">
+                            <Setter Property="CornerRadius"
+                                                Value="11" />
+                        </Style>
+                    </ListView.Resources>
+                </ListView>
+            </Grid>
+        </Border>
     </Grid>
 </Window>

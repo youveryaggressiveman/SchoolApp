@@ -22,6 +22,14 @@ namespace SchoolApp.View.Windows
         public CreateScheduleWindow()
         {
             InitializeComponent();
+
+            foreach (Window item in Application.Current.Windows)
+            {
+                if (item is MainWindow)
+                {
+                    this.Owner = item;
+                }
+            }
         }
     }
 }
