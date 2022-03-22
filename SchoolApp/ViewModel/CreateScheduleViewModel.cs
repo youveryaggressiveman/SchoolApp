@@ -22,6 +22,10 @@ namespace SchoolApp.ViewModel
         private readonly UniversalController<TimeSubject> _getTimeSubjectListController;
         private readonly UniversalController<DayOfWeek> _getDayOfWeekController;
 
+        private bool _enabledDayOfWeekList = true;
+        private bool _enabledGroupList = false;
+        private bool _enabledOtherList = false;
+   
         private ObservableCollection<ObservableCollection<Schedule>> _allScheduleList;
 
         private List<Employee> _deleteEmployeeList;
@@ -41,6 +45,36 @@ namespace SchoolApp.ViewModel
         private Group _selectedGroup;
         private DayOfWeek _selectedDayOfWeek;
         private Schedule _selectedSchedule;
+
+        public bool EnabledDayOfWeekList
+        {
+            get => _enabledDayOfWeekList;
+            set
+            {
+                _enabledDayOfWeekList = value;
+                OnPropertyChanged(nameof(EnabledDayOfWeekList));
+            }
+        }
+
+        public bool EnabledGroupList
+        {
+            get => _enabledGroupList;
+            set
+            {
+                _enabledGroupList = value;
+                OnPropertyChanged(nameof(EnabledGroupList));
+            }
+        }
+
+        public bool EnabledOtherList
+        {
+            get => _enabledOtherList;
+            set
+            {
+                _enabledOtherList = value;
+                OnPropertyChanged(nameof(EnabledOtherList));
+            }
+        }
 
         public ObservableCollection<ObservableCollection<Schedule>> AllScheduleList
         {
@@ -99,6 +133,8 @@ namespace SchoolApp.ViewModel
                 {
                     UpdateInfo(SelectedGroup?.Name);
                 }
+
+                SetEnable(typeof(Group));
             }
         }
 
@@ -134,6 +170,8 @@ namespace SchoolApp.ViewModel
             {
                 _selectedDayOfWeek = value;
                 OnPropertyChanged(nameof(SelectedDayOfWeek));
+
+                SetEnable(typeof(DayOfWeek));
             }
         }
 
@@ -187,6 +225,7 @@ namespace SchoolApp.ViewModel
             }
         }
 
+        public ICommand RefreshList { get; private set; }
         public ICommand AddInAllSchedule { get; private set; }
         public ICommand RemoveSchedule { get; private set; }
         public ICommand AddSchedule { get; private set; }
@@ -195,6 +234,7 @@ namespace SchoolApp.ViewModel
         {
             AllScheduleList = new ObservableCollection<ObservableCollection<Schedule>>();
 
+            RefreshList = new DelegateCommand(Refresh);
             AddInAllSchedule = new DelegateCommand(AddAllScheduleForGroup);
             RemoveSchedule = new DelegateCommand(RemoveInListNewSchedule);
             AddSchedule = new DelegateCommand(AddInListNewSchedule);
@@ -216,6 +256,37 @@ namespace SchoolApp.ViewModel
             Initialize();
 
             LoadAllInfo();
+        }
+
+        private void Refresh(object arg)
+        {
+            SetEnable(null);
+
+            ScheduleList = new ObservableCollection<Schedule>();
+        }
+
+        private void SetEnable(Type type)
+        {
+            if (type == null)
+            {
+                EnabledDayOfWeekList = true;
+                EnabledGroupList = false;
+                EnabledOtherList = false;
+            }
+
+            if (type.Equals(typeof(DayOfWeek)))
+            {
+                EnabledDayOfWeekList = false;
+                EnabledGroupList = true;
+                EnabledOtherList = false;
+            }
+
+            if (type.Equals(typeof(Group)))
+            {
+                EnabledDayOfWeekList = false;
+                EnabledGroupList = false;
+                EnabledOtherList = true;
+            }
         }
 
         private void AddAllScheduleForGroup(object obj)

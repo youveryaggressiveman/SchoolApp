@@ -42,21 +42,27 @@
                             <RowDefinition/>
                         </Grid.RowDefinitions>
                         <ComboBox Margin="25"
+                                  
                                   ItemsSource="{Binding EmployeeList}"
                                   DisplayMemberPath="FIO"
+                                  IsEnabled="{Binding EnabledOtherList}"
                                   SelectedItem="{Binding SelectedEmployee}"/>
                         <ComboBox Margin="25"
                                   Grid.Row="1"
+                                  IsEnabled="{Binding EnabledOtherList}"
                                   ItemsSource="{Binding SubjectList}"
                                   DisplayMemberPath="Name"
                                   SelectedItem="{Binding SelectedSubject}"/>
                         <ComboBox Margin="25"
                                   Grid.Row="2"
+                                  
                                   ItemsSource="{Binding GroupList}"
                                   DisplayMemberPath="Name"
+                                  IsEnabled="{Binding EnabledGroupList}"
                                   SelectedItem="{Binding SelectedGroup}"/>
                         <ComboBox Margin="25"
                                   Grid.Row="3"
+                                  IsEnabled="{Binding EnabledOtherList}"
                                   ItemsSource="{Binding TimeSubjectList}"
                                   DisplayMemberPath="Time"
                                   SelectedItem="{Binding SelectedTimeSubject}"/>
@@ -64,6 +70,7 @@
                                   ItemsSource="{Binding DayOfWeekList}"
                                   DisplayMemberPath="Name"
                                   Grid.Row="4"
+                                  IsEnabled="{Binding EnabledDayOfWeekList}"
                                   SelectedItem="{Binding SelectedDayOfWeek}"/>
 
                     </Grid>
