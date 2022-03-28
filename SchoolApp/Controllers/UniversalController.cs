@@ -24,18 +24,16 @@ namespace SchoolApp.Controllers
                 {
                     var stringTask = await client.GetAsync(_server.Replace("/swagger/", "/api/") + listName[0] + "/" + listName[1] + "/" + listName[2] + "?" + listName[2] + "=" + int.Parse(listArgument[0]));
 
-                    if (stringTask.StatusCode != HttpStatusCode.OK)
+                    if (stringTask.StatusCode == HttpStatusCode.OK)
                     {
-                        throw new ArgumentNullException();
+                        var result = await JsonSerializer.DeserializeAsync<IEnumerable<T>>(await stringTask.Content.ReadAsStreamAsync());
+
+                        return result;
                     }
-
-                    var result = await JsonSerializer.DeserializeAsync<IEnumerable<T>>(await stringTask.Content.ReadAsStreamAsync());
-
-                    return result;
                 }
             }
 
-            throw new ArgumentNullException();
+            throw new OperationCanceledException();
         }
 
         public async Task<Guid> PostListSomething<C>(C obj, string[] listName, string[] listArgument) where C : class
@@ -52,19 +50,17 @@ namespace SchoolApp.Controllers
 
                     var stringTask = await client.PostAsync(url, content);
 
-                    if (stringTask.StatusCode != HttpStatusCode.OK)
+                    if (stringTask.StatusCode == HttpStatusCode.OK)
                     {
-                        throw new ArgumentNullException();
-                    }
-
-                    var result =
+                        var result =
                         await JsonSerializer.DeserializeAsync<Guid>(await stringTask.Content.ReadAsStreamAsync());
 
-                    return result;
+                        return result;
+                    }
                 }
             }
 
-            throw new ArgumentNullException();
+            throw new OperationCanceledException();
         }
 
         public async Task PutAsync<C>(C obj, string[] listName, string[] listArgument)
@@ -84,7 +80,7 @@ namespace SchoolApp.Controllers
             }
             else
             {
-                throw new ArgumentNullException();
+                throw new OperationCanceledException();
             }
             
         }

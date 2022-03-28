@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using SchoolApp.Command;
 using SchoolApp.Controllers;
+using SchoolApp.Core.Builders;
 using SchoolApp.Model;
 using DayOfWeek = SchoolApp.Model.DayOfWeek;
 using MessageBox = HandyControl.Controls.MessageBox;
@@ -25,7 +27,7 @@ namespace SchoolApp.ViewModel
         private bool _enabledDayOfWeekList = true;
         private bool _enabledGroupList = false;
         private bool _enabledOtherList = false;
-   
+
         private ObservableCollection<ObservableCollection<Schedule>> _allScheduleList;
 
         private List<Employee> _deleteEmployeeList;
@@ -45,6 +47,12 @@ namespace SchoolApp.ViewModel
         private Group _selectedGroup;
         private DayOfWeek _selectedDayOfWeek;
         private Schedule _selectedSchedule;
+
+        public delegate void UseStandardHandler();
+        public delegate void UpdateHandler(object name);
+
+        public event UseStandardHandler UseStandart;
+        public event UpdateHandler Update;
 
         public bool EnabledDayOfWeekList
         {
@@ -106,7 +114,7 @@ namespace SchoolApp.ViewModel
 
                 if (SelectedEmployee != null)
                 {
-                    UpdateInfo(SelectedEmployee?.FIO);
+                    RouteObjectEvent(UpdateInfo, new List<object> { SelectedEmployee.FIO });
                 }
             }
         }
@@ -131,7 +139,7 @@ namespace SchoolApp.ViewModel
 
                 if (SelectedGroup != null)
                 {
-                    UpdateInfo(SelectedGroup?.Name);
+                    RouteObjectEvent(UpdateInfo, new List<object> { SelectedGroup.Name });
                 }
 
                 SetEnable(typeof(Group));
@@ -148,7 +156,7 @@ namespace SchoolApp.ViewModel
 
                 if (SelectedTimeSubject != null)
                 {
-                    UpdateInfo(SelectedTimeSubject?.Time);
+                    RouteObjectEvent(UpdateInfo,new List<object> { SelectedTimeSubject.Time });
                 }
             }
         }
@@ -252,10 +260,29 @@ namespace SchoolApp.ViewModel
             TimeSubjectList = new ObservableCollection<TimeSubject>();
             SubjectList = new ObservableCollection<Subject>();
 
+            RouteEvent(new List<UseStandardHandler> { Initialize, LoadAllInfo });
+        }
 
-            Initialize();
+        private void RouteEvent(List<UseStandardHandler> action)
+        {
+            foreach (var item in action)
+            {
+                UseStandart += item;
+                UseStandart();
+                UseStandart -= item;
+            }
+        }
 
-            LoadAllInfo();
+        public void RouteObjectEvent(UpdateHandler handler, List<object> name)
+        {
+            Update += handler;
+
+            foreach (var item in name)
+            {
+                Update(item);
+            }
+
+            Update -= handler;
         }
 
         private void Refresh(object arg)
@@ -313,30 +340,23 @@ namespace SchoolApp.ViewModel
                 {
                     ScheduleList.Remove(item);
 
-                    Initialize();
-                    LoadAllInfo();
-                    UpdateInfo(item.Employee.FIO);
-                    UpdateInfo(item.TimeSubject.Time);
-                    UpdateInfo(item.Group.Name);
+                    RouteEvent(new List<UseStandardHandler> { Initialize, LoadAllInfo });
+                    RouteObjectEvent(UpdateInfo, new List<object>{ item.Employee.FIO, item.Group.Name, item.TimeSubject.Time});
                 }
             }
         }
 
         private void AddInListNewSchedule(object obj)
         {
-            Schedule newSchedule = new Schedule()
-            {
-                EmployeeID = SelectedEmployee.ID,
-                Employee = SelectedEmployee,
-                GroupID = SelectedGroup.ID,
-                Group = SelectedGroup,
-                SubjectID = SelectedSubject.ID,
-                Subject = SelectedSubject,
-                TimeSubjectID = SelectedTimeSubject.ID,
-                TimeSubject = SelectedTimeSubject
-            };
+            ScheduleBuilder scheduleBuilder = new ScheduleBuilder();
 
-
+            var newSchedule = scheduleBuilder.WithID(0)
+                .WithDayOfWeekID(SelectedDayOfWeek.ID)
+                .WithEmployeeID(SelectedEmployee.ID)
+                .WithGroupID(SelectedGroup.ID)
+                .WithSubjectID(SelectedSubject.ID)
+                .WithTimeSubjectID(SelectedTimeSubject.ID)
+                .Build();
 
             ScheduleList.Add(newSchedule);
         }
@@ -359,7 +379,7 @@ namespace SchoolApp.ViewModel
             }
         }
 
-        private void UpdateInfo(string name)
+        private void UpdateInfo(object name)
         {
             if (ScheduleList.Count == 0)
             {
@@ -368,39 +388,31 @@ namespace SchoolApp.ViewModel
 
             foreach (var item in _deleteEmployeeList.ToList())
             {
-                EmployeeList.Add(item);
-
-                _deleteEmployeeList.Remove(item);
+                ModifyCollection(EmployeeList, item, _deleteEmployeeList);
             }
 
             foreach (var item in _deleteGroupList.ToList())
             {
                 if (!GroupList.Contains(item))
                 {
-                    GroupList.Add(item);
-
-                    _deleteGroupList.Remove(item);
+                    ModifyCollection(GroupList, item, _deleteGroupList);
                 }
             }
 
             foreach (var item in _deleteTimeSubjectList.ToList())
             {
-                TimeSubjectList.Add(item);
-
-                _deleteTimeSubjectList.Remove(item);
+                ModifyCollection(TimeSubjectList, item, _deleteTimeSubjectList);
             }
 
             foreach (var item in ScheduleList.ToList())
             {
-                if (item.Employee.FIO == name)
+                if (item.Employee.FIO.Equals(name))
                 {
                     foreach (var group in GroupList.ToList())
                     {
                         if (group.ID == item.Group.ID)
                         {
-                            _deleteGroupList.Add(group);
-
-                            GroupList.Remove(group);
+                            ModifyCollection(_deleteGroupList, group, GroupList);
                         }
                     }
 
@@ -408,22 +420,18 @@ namespace SchoolApp.ViewModel
                     {
                         if (timeSubject.ID == item.TimeSubject.ID)
                         {
-                            _deleteTimeSubjectList.Add(timeSubject);
-
-                            TimeSubjectList.Remove(timeSubject);
+                            ModifyCollection(_deleteTimeSubjectList, timeSubject, TimeSubjectList);
                         }
                     }
                 }
 
-                if (item.Group.Name == name)
+                if (item.Group.Name.Equals(name))
                 {
                     foreach (var timeSubject in TimeSubjectList.ToList())
                     {
                         if (timeSubject.ID == item.TimeSubject.ID)
                         {
-                            _deleteTimeSubjectList.Add(timeSubject);
-
-                            TimeSubjectList.Remove(timeSubject);
+                            ModifyCollection(_deleteTimeSubjectList, timeSubject, TimeSubjectList);
                         }
                     }
 
@@ -431,22 +439,18 @@ namespace SchoolApp.ViewModel
                     {
                         if (employee.ID == item.Employee.ID)
                         {
-                            _deleteEmployeeList.Add(employee);
-
-                            EmployeeList.Remove(employee);
+                            ModifyCollection(_deleteEmployeeList, employee, EmployeeList);
                         }
                     }
                 }
 
-                if (item.TimeSubject.Time == name)
+                if (item.TimeSubject.Time.Equals(name))
                 {
                     foreach (var employee in EmployeeList.ToList())
                     {
                         if (employee.ID == item.Employee.ID)
                         {
-                            _deleteEmployeeList.Add(employee);
-
-                            EmployeeList.Remove(employee);
+                            ModifyCollection(_deleteEmployeeList, employee, EmployeeList);
                         }
                     }
 
@@ -454,13 +458,19 @@ namespace SchoolApp.ViewModel
                     {
                         if (group.ID == item.Group.ID)
                         {
-                            _deleteGroupList.Add(group);
-
-                            GroupList.Remove(group);
+                            ModifyCollection(_deleteGroupList, group, GroupList);
                         }
                     }
                 }
             }
+        }
+
+        public void ModifyCollection<Unit, Target, Deleted>(Target target, Unit unit, Deleted deleted)
+            where Target : ICollection<Unit>
+            where Deleted : ICollection<Unit>
+        {
+            target.Add(unit);
+            deleted.Remove(unit);
         }
 
         private async void LoadAllInfo()
@@ -481,11 +491,11 @@ namespace SchoolApp.ViewModel
 
             try
             {
-                groupList = await _getGroupListController.GetList(new[] {"Group", "GetAll"});
-                employeeList = await _getEmployeeListController.GetList(new[] {"Employee", "GetAll"});
-                dayOfWeekList = await _getDayOfWeekController.GetList(new[] {"DayOfWeek", "GetAll"});
-                subjectList = await _getSubjectListController.GetList(new[] {"Subject", "GetAll"});
-                timeSubjectList = await _getTimeSubjectListController.GetList(new[] {"TimeSubject", "GetAll"});
+                groupList = await _getGroupListController.GetList(new[] { "Group", "GetAll" });
+                employeeList = await _getEmployeeListController.GetList(new[] { "Employee", "GetAll" });
+                dayOfWeekList = await _getDayOfWeekController.GetList(new[] { "DayOfWeek", "GetAll" });
+                subjectList = await _getSubjectListController.GetList(new[] { "Subject", "GetAll" });
+                timeSubjectList = await _getTimeSubjectListController.GetList(new[] { "TimeSubject", "GetAll" });
 
                 groupList.ToList().ForEach(GroupList.Add);
                 employeeList.ToList().ForEach(EmployeeList.Add);

@@ -45,12 +45,14 @@
                                   
                                   ItemsSource="{Binding EmployeeList}"
                                   DisplayMemberPath="FIO"
+                                  x:Name="employeeComboBox"
                                   IsEnabled="{Binding EnabledOtherList}"
                                   SelectedItem="{Binding SelectedEmployee}"/>
                         <ComboBox Margin="25"
                                   Grid.Row="1"
                                   IsEnabled="{Binding EnabledOtherList}"
                                   ItemsSource="{Binding SubjectList}"
+                                  x:Name="subjectComboBox"
                                   DisplayMemberPath="Name"
                                   SelectedItem="{Binding SelectedSubject}"/>
                         <ComboBox Margin="25"
@@ -62,6 +64,7 @@
                                   SelectedItem="{Binding SelectedGroup}"/>
                         <ComboBox Margin="25"
                                   Grid.Row="3"
+                                  x:Name="timeSubjectComboBox"
                                   IsEnabled="{Binding EnabledOtherList}"
                                   ItemsSource="{Binding TimeSubjectList}"
                                   DisplayMemberPath="Time"
@@ -78,9 +81,12 @@
                 <StackPanel Grid.Column="1"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center">
-                    <Button Command="{Binding AddSchedule}"
+                    <Button 
                             VerticalAlignment="Bottom"
                                 Content="🡺"
+                            IsEnabled="{Binding EnabledOtherList}"
+                            x:Name="addScheduleButton"
+                            Click="addScheduleButton_Click"
                             Padding="0"
                             Margin="10"
                             FontSize="18"
@@ -88,6 +94,7 @@
                     <Button Command="{Binding RemoveSchedule}"
                             VerticalAlignment="Bottom"
                                 Content="🡸"
+                            IsEnabled="{Binding EnabledOtherList}"
                             Margin="10"
                             Padding="0"
                             FontSize="18"

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SchoolApp.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -30,6 +31,15 @@ namespace SchoolApp.View.Windows
                     this.Owner = item;
                 }
             }
+        }
+
+        private void addScheduleButton_Click(object sender, RoutedEventArgs e)
+        {
+            (DataContext as CreateScheduleViewModel).AddSchedule.Execute(sender);
+
+            timeSubjectComboBox.SelectedIndex = -1;
+            subjectComboBox.SelectedIndex = -1;
+            employeeComboBox.SelectedIndex = -1;
         }
     }
 }

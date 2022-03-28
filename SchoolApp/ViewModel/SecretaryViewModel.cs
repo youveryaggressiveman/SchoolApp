@@ -317,9 +317,9 @@ namespace SchoolApp.ViewModel
                     {
                         await _postNewStudentGroupController.PostListSomething(item, new string[] { "Student", "Create" }, new string[] { });
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
-                        MessageBox.Info($"Данные o {item.User.FIO} не смогли занестись. Попробуйте позже.", "Занесение данных");
+                        MessageBox.Info($"Данные o {item.User.FIO} не смогли занестись. Попробуйте позже. {e.Message}", "Занесение данных");
                         return;
                     }
                     finally
@@ -331,7 +331,7 @@ namespace SchoolApp.ViewModel
             }
             catch (Exception e)
             {
-                MessageBox.Error("Произошла ошибка подключения", "Получение данных");
+                MessageBox.Error($"Произошла ошибка подключения. {e.Message}", "Получение данных");
 
                 return;
             }
@@ -449,7 +449,7 @@ namespace SchoolApp.ViewModel
             }
             catch (Exception e)
             {
-                MessageBox.Error("Произошла ошибка подключения", "Получение данных");
+                MessageBox.Error($"Произошла ошибка подключения. {e.Message}", "Получение данных");
 
                 return;
             }
@@ -480,7 +480,7 @@ namespace SchoolApp.ViewModel
             }
             catch (Exception e)
             {
-                MessageBox.Error("Произошла ошибка подключения", "Получение данных");
+                MessageBox.Error($"Произошла ошибка подключения. {e.Message}", "Получение данных");
 
                 return;
             }

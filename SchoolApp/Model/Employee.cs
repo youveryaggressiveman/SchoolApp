@@ -16,6 +16,7 @@ namespace SchoolApp.Model
         public string SecondName { get; set; }
         public string LastName { get; set; }
         public string Role { get; set; }
-         public string FIO => SecondName + " " + FirstName[0] + "." + (LastName != null ? LastName[0] + "." : "");
+        public string FIO => SecondName + " " + FirstName[0] + "." + (LastName != null ? LastName[0] + "." : "");
+
     }
 }

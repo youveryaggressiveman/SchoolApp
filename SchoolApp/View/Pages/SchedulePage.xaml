@@ -67,6 +67,43 @@
                          Opacity="0.90"
                         Panel.ZIndex="1"
                         Margin="20"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Top"
+                    Width="600"
+                    BorderThickness="2"
+                        CornerRadius="11"
+                    Grid.ColumnSpan="2"
+                        Height="50">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Выберите день недели для просмотра расписания:"
+                               FontSize="12"
+                               HorizontalAlignment="Right"
+                               Padding="10"
+                               VerticalAlignment="Center"/>
+                    <Border BorderBrush="Gray"
+                            Height="50"
+                            Width="1"
+                            Grid.Column="1"
+                            BorderThickness="0.2"/>
+                    <ComboBox ItemsSource="{Binding DayOfWeekList}"
+                              SelectedItem="{Binding SelectedDayOfWeek}"
+                              DisplayMemberPath="Name"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              Grid.Column="2"
+                              Width="250"
+                              Style="{StaticResource ComboBoxExtend}"/>
+                </Grid>
+            </Border>
+            <Border BorderBrush="#b382ea"
+                         Opacity="0.90"
+                        Panel.ZIndex="1"
+                        Margin="20"
                     Width="300"
                         CornerRadius="11"
                         Background="#b382ea"
