@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DayOfWeek = SchoolApp.Model.DayOfWeek;
 
 namespace SchoolApp.Core.Builders
 {
@@ -50,6 +51,36 @@ namespace SchoolApp.Core.Builders
         public ScheduleBuilder WithSubjectID(int id)
         {
             _schedule.SubjectID = id;
+            return this;
+        }
+
+        public ScheduleBuilder WithGroup(Group group)
+        {
+            _schedule.Group = group;
+            return this;
+        }
+
+        public ScheduleBuilder WithEmployee(Employee employee)
+        {
+            _schedule.Employee = employee;
+            return this;
+        }
+
+        public ScheduleBuilder WithDayOfWeek(DayOfWeek dayOfWeek)
+        {
+            _schedule.DayOfWeek = dayOfWeek;
+            return this;
+        }
+
+        public ScheduleBuilder WithTimeSubject(TimeSubject timeSubject)
+        {
+            _schedule.TimeSubject = timeSubject;
+            return this;
+        }
+
+        public ScheduleBuilder WithSubject(Subject subject)
+        {
+            _schedule.Subject = subject;
             return this;
         }
     }

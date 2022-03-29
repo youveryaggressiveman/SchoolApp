@@ -26,6 +26,9 @@ namespace SchoolApp.ViewModel
 
         private User _thisUser;
 
+        public delegate void StandartLoad();
+        public event StandartLoad Load;
+
         public Visibility VisibilitySecretary
         {
             get => _visibilitySecretary;
@@ -92,8 +95,16 @@ namespace SchoolApp.ViewModel
 
             timer.Start();
 
-            LoadVisibilityMenuButton();
-            LoadUserInfo();
+            WorkEvent(LoadVisibilityMenuButton);
+
+            WorkEvent(() => ThisUser = UserSingleton.User);
+        }
+
+        private void WorkEvent(StandartLoad action)
+        {
+            Load += action;
+            Load();
+            Load -= action;
         }
 
         private void FirstRealCommand(object arg)
@@ -174,11 +185,6 @@ namespace SchoolApp.ViewModel
             {
                 FrameManager.SetSource(new ClientPage());
             }
-        }
-
-        private void LoadUserInfo()
-        {
-            ThisUser = UserSingleton.User;
         }
     }
 }

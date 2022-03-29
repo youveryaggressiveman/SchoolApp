@@ -1,4 +1,6 @@
-﻿namespace SchoolApp.Model
+﻿using System;
+
+namespace SchoolApp.Model
 {
     public class Passport
     {
@@ -6,5 +8,10 @@
         public string PassportSerial { get; set; }
         public string PassportNumber { get; set; }
         public System.DateTime DateBirth { get; set; }
+
+        public Passport()
+        {
+            DateBirth = DateTime.Now;
+        }
     }
 }

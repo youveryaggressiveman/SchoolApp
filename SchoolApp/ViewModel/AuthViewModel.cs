@@ -73,7 +73,7 @@ namespace SchoolApp.ViewModel
 
         public AuthViewModel()
         {
-            Close = new DelegateCommand(CloseWindow);
+            Close = new DelegateCommand((object obj) => Application.Current.Shutdown());
             Auth = new DelegateCommand(Authorize);
 
             _controller = new AuthViewModelController();
@@ -165,11 +165,6 @@ namespace SchoolApp.ViewModel
                 Settings.Default.Email = null;
                 Settings.Default.Password = null;
             }
-        }
-
-        private void CloseWindow(object arg)
-        {
-            Application.Current.Shutdown();
         }
 
         private async void Authorize(object obj)

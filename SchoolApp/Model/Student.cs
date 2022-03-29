@@ -18,5 +18,11 @@ namespace SchoolApp.Model
         [JsonIgnore]
         public virtual Group Group { get; set; }
         public virtual User User { get; set; }
+
+        public Student()
+        {
+            User = new User();
+            Group = new Group();
+        }
     }
 }

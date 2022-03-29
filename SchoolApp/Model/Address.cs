@@ -9,5 +9,10 @@ namespace SchoolApp.Model
         public string AddressNumber { get; set; }
 
         public virtual ICollection<City> City { get; set; }
+
+        public Address()
+        {
+            City = new List<City>();
+        }
     }
 }

@@ -356,6 +356,11 @@ namespace SchoolApp.ViewModel
                 .WithGroupID(SelectedGroup.ID)
                 .WithSubjectID(SelectedSubject.ID)
                 .WithTimeSubjectID(SelectedTimeSubject.ID)
+                .WithDayOfWeek(SelectedDayOfWeek)
+                .WithEmployee(SelectedEmployee)
+                .WithGroup(SelectedGroup)
+                .WithSubject(SelectedSubject)
+                .WithTimeSubject(SelectedTimeSubject)
                 .Build();
 
             ScheduleList.Add(newSchedule);

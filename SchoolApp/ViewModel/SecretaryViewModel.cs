@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using SchoolApp.Command;
 using SchoolApp.Controllers;
+using SchoolApp.Core.Builders;
 using SchoolApp.Model;
 using MessageBox = HandyControl.Controls.MessageBox;
 
@@ -39,6 +40,9 @@ namespace SchoolApp.ViewModel
         private Student _selectedStudent;
         private Student _newStudent;
 
+        public delegate void StandartLoad();
+        public event StandartLoad Load;
+
         public Student SelectedStudent
         {
             get => _selectedStudent;
@@ -46,6 +50,8 @@ namespace SchoolApp.ViewModel
             {
                 _selectedStudent = value;
                 OnPropertyChanged(nameof(SelectedStudent));
+
+                WorkEvent(LoadInfoAboutSelectedStudent);
             }
         }
 
@@ -171,6 +177,7 @@ namespace SchoolApp.ViewModel
             }
         }
 
+        public ICommand Default { get; private set; }
         public ICommand RefreshCode { get; set; }
         public ICommand AddNewGroupInDatabase { get; private set; }
         public ICommand AddNewUserInGroup { get; private set; }
@@ -194,18 +201,23 @@ namespace SchoolApp.ViewModel
 
             RefreshCode = new DelegateCommand(NewCode);
             NewStudent = new Student();
-            NewStudent.User = new User();
-            NewStudent.Group = new Group();
             AddressByNewStudent = new Address();
-            AddressByNewStudent.City = new List<City>();
             PassportByNewStudent = new Passport();
 
-            RefactorNewStudent = new DelegateCommand(Refactor);
+            Default = new DelegateCommand((object obj) => WorkEvent(SetDefault));
+
             DeleteNewStudent = new DelegateCommand(Delete);
             AddNewGroupInDatabase = new DelegateCommand(AddNewGroup);
             AddNewUserInGroup = new DelegateCommand(AddNewUser);
 
-            LoadAllInfo();
+            WorkEvent(LoadAllInfo);
+        }
+
+        private void WorkEvent(StandartLoad action)
+        {
+            Load += action;
+            Load();
+            Load -= action;
         }
 
         private void NewCode(object obj)
@@ -218,37 +230,38 @@ namespace SchoolApp.ViewModel
             }
         }
 
-        private void Refactor(object arg)
+        private void LoadInfoAboutSelectedStudent()
         {
             if (SelectedStudent == null)
             {
                 return;
             }
 
-            NewStudent.User.FirstName = SelectedStudent.User.FirstName;
-            NewStudent.User.SecondName = SelectedStudent.User.SecondName;
-            NewStudent.User.LastName = SelectedStudent.User.LastName;
-            NewStudent.User.Password = SelectedStudent.User.Password;
-            NewStudent.User.Email = SelectedStudent.User.Email;
-            NewStudent.User.Code = SelectedStudent.User.Code;
-
-            PassportByNewStudent.PassportNumber = SelectedStudent.User.Passport.PassportNumber;
-            PassportByNewStudent.PassportSerial = SelectedStudent.User.Passport.PassportSerial;
-            PassportByNewStudent.DateBirth = SelectedStudent.User.Passport.DateBirth;
+            NewStudent = SelectedStudent;
+            PassportByNewStudent = SelectedStudent.User.Passport;
+            AddressByNewStudent = SelectedStudent.User.Address;
 
             foreach (var item in CountryList)
             {
-                if (item.Equals(SelectedCountry))
+                if (item.ID == SelectedStudent.User.Address.City
+                                .ToList()[0].Countries
+                                .ToList()[0].ID)
                 {
                     SelectedCountry = item;
                 }
             }
 
+            OnPropertyChanged(nameof(SelectedCountry));
+
+            //await LoadCityByCountry();
+
             foreach (var item in CityListBySelectedCountry)
             {
-                if (item.Equals(SelectedCity))
+                if (item.ID == SelectedStudent.User.Address.City
+                                .ToList()[0].ID)
                 {
                     SelectedCity = item;
+
                 }
             }
         }
@@ -365,39 +378,26 @@ namespace SchoolApp.ViewModel
                 return;
             }
 
-            Student newStudent = new Student()
-            {
-                User = new User()
-                {
-                    FirstName = NewStudent.User.FirstName,
-                    SecondName = NewStudent.User.SecondName,
-                    LastName = NewStudent.User.LastName,
-                    Password = NewStudent.User.Password,
-                    Email = NewStudent.User.Email,
-                    Passport = PassportByNewStudent,
-                    Address = new Address()
-                    {
-                        AddressName = AddressByNewStudent.AddressName,
-                        AddressNumber = AddressByNewStudent.AddressNumber,
-                        City = new List<City>()
-                        {
-                            new City()
-                            {
-                                ID = SelectedCity.ID,
-                                Name = SelectedCity.Name,
-                                Countries = new List<Country>()
-                                {
-                                    new Country()
-                                    {
-                                        ID = SelectedCountry.ID,
-                                        Name = SelectedCountry.Name
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            };
+            StudentBuilder studentBuilder = new StudentBuilder();
+
+            var newStudent = studentBuilder
+                .UserBuilder
+                    .WithFullName(new string[] { NewStudent.User.FirstName, NewStudent.User.SecondName, NewStudent.User.LastName })
+                    .WithEmail(NewStudent.User.Email)
+                    .WithCode(NewStudent.User.Code)
+                    .WithPassword(NewStudent.User.Password)
+                .PassportBuilder
+                    .WithPassportSerial(PassportByNewStudent.PassportSerial)
+                    .WithPassportNumber(PassportByNewStudent.PassportNumber)
+                    .WithDateBirth(PassportByNewStudent.DateBirth)
+                .AddressBuilder
+                    .WithAddressName(AddressByNewStudent.AddressName)
+                    .WithAddressNumber(AddressByNewStudent.AddressNumber)
+                .CityBuilder
+                    .WithCity(SelectedCity)
+                .CountryBuilder
+                    .WithCountry(SelectedCountry)
+                .Build();
 
             SetDefault();
 
@@ -421,7 +421,7 @@ namespace SchoolApp.ViewModel
             AddressByNewStudent = new Address();
             PassportByNewStudent = new Passport();
 
-            LoadAllInfo();
+           WorkEvent(LoadAllInfo);
         }
 
         private async void LoadAllInfo()
